@@ -31,5 +31,9 @@
 *.exe
 *.out
 *.app
+
 .ccls-cache/
 .ccls
+
+*~
+

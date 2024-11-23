@@ -10,6 +10,12 @@
 class Terrain
 {
 	public:
+		float color[4]   = {1.0f, 1.0f, 1.0f, 1.0f};	
+		float brightness = 1.0f;
+		
+		float heightScale  = 64.0f;
+		float colorOffset = 16.0f;
+
 		unsigned int VBO;
 		unsigned int texture;
 		

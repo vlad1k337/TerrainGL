@@ -25,6 +25,7 @@ glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
+
 int main()
 {
     glfwInit();
@@ -79,7 +80,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
      
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	bool wireframeMode = true;
     while(!glfwWindowShouldClose(window))
     {
       glfwPollEvents();
@@ -87,7 +88,23 @@ int main()
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplGlfw_NewFrame();
       ImGui::NewFrame();
-      ImGui::ShowDemoWindow();
+	  
+	  ImGui::Begin("Configuration");
+	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
+	  ImGui::ColorEdit4("Color", terrain.color);	
+
+	  ImGui::SliderFloat("Brightness", &terrain.brightness, 0.0f, 2.0f, "%.1f");
+
+	  ImGui::SliderFloat("Height Scale", &terrain.heightScale, 16.0f, 128.0f, "%1.0f");
+	  ImGui::SliderFloat("Color Offset", &terrain.colorOffset, 0, 32.0f, "%1.0f");
+
+	  ImGui::End();
+
+
+	  if(wireframeMode == true)
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	  else
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
       proccesInput(window);
 
@@ -103,6 +120,14 @@ int main()
       setUniformMatrix(program, "model", model);
       setUniformMatrix(program, "view", view);
       setUniformMatrix(program, "projection", projection);
+	
+	  setUniformFloat(program, "redComponent", terrain.color[0]);
+	  setUniformFloat(program, "greenComponent", terrain.color[1]);
+	  setUniformFloat(program, "blueComponent", terrain.color[2]);
+	  setUniformFloat(program, "brightness", terrain.brightness);
+
+	  setUniformFloat(program, "heightScale", terrain.heightScale);
+	  setUniformFloat(program, "colorOffset", terrain.colorOffset);
 
       glBindVertexArray(VAO);
       terrain.drawTerrain();

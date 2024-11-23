@@ -7,6 +7,11 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform float heightScale;
+
+/* needed to position terrain along y-axis */
+float heightOffset = 16.0f;
+
 in vec2 TextureCoord[];
 
 out float Height;
@@ -26,7 +31,7 @@ void main()
     vec2 t1 = mix(t10, t11, u);
     vec2 texCoord = mix(t0, t1, v); 
 
-	Height = texture(heightMap, texCoord).y * 64.0 - 16.0;
+	Height = texture(heightMap, texCoord).y * heightScale - heightOffset;
 
 	vec4 p00 = gl_in[0].gl_Position;
     vec4 p01 = gl_in[1].gl_Position;

@@ -82,5 +82,10 @@ inline void setUniformInt(unsigned int shaderProgram, char* uniform, int value)
 	glUniform1i(location, value);
 }
 
+inline void setUniformFloat(unsigned int shaderProgram, char* uniform, float value)
+{
+	GLuint location = glGetUniformLocation(shaderProgram, uniform);
+	glUniform1f(location, value);
+}
 
 #endif

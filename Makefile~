@@ -1,0 +1,36 @@
+CFLAGS    = -Wall -g 
+INCLUDES  = -Iinclude/ 
+LIBS   	  = -lGL `pkg-config --static --libs glfw3`
+TARGET    = main
+
+SRCDIR    = src
+BUILDIR   = build
+OBJS      = build/main.o build/glad.o
+
+IMGUI_SRCDIR = $(SRCDIR)/imgui
+IMGUI_OBJDIR = $(BUILDIR)/imgui
+
+CXX = g++
+
+all: $(TARGET)
+
+# владик, тебе нужно собирать имгуи.
+# компилируй все .cpp файлы используя %
+# пропиши в IMGUI_OBJS все нужные обьектники
+# и наконец добавь их в рецепт для $(TARGET)
+# люблю тебя
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CFLAGS) -o main $^ $(LIBS) $(INCLUDES) 
+
+$(BUILDIR)/%.o: $(SRCDIR)/%.cpp | $(BUILDIR)
+	$(CXX) $(CFLAGS) -c -o $@ $^ $(INCLUDES) 
+
+$(BUILDIR)/glad.o: $(SRCDIR)/glad.c | $(BUILDIR)
+	$(CXX) $(CFLAGS) -c -o $@ $^ $(INCLUDES)
+
+$(BUILDIR):
+	mkdir -p $(BUILDIR)
+
+clean: 
+	rm -rf $(TARGET) $(BUILDIR)

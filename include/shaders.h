@@ -1,7 +1,8 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-#include "glad/glad.h"
+#include <glad/glad.h>
+
 #include <cstdarg>
 #include <iostream>
 
@@ -86,6 +87,11 @@ inline void setUniformFloat(unsigned int shaderProgram, char* uniform, float val
 {
 	GLuint location = glGetUniformLocation(shaderProgram, uniform);
 	glUniform1f(location, value);
+}
+inline void setUniformVec2(unsigned int shaderProgram, char* uniform, glm::vec2 vector)
+{
+	GLuint location = glGetUniformLocation(shaderProgram, uniform);
+	glUniform2fv(location, 1, glm::value_ptr(vector));
 }
 
 #endif

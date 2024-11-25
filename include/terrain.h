@@ -1,23 +1,32 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include "shaders.h"
 #include <vector>
 #include <iostream>
+
+#include <glm/glm.hpp>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include "shaders.h"
+
 
 class Terrain
 {
 	public:
 		float color[4]   = {1.0f, 1.0f, 1.0f, 1.0f};	
-		float brightness = 1.0f;
+		float brightness = 0.0f;
 		
 		float heightScale  = 64.0f;
-		float colorOffset = 16.0f;
+		float heightOffset = 16.0f;
 
 		unsigned int VBO;
-		unsigned int texture;
+		unsigned int heightMap;
+
+		bool normalMode = false;
+	
+		glm::vec2 uTexelSize;		
 		
 		Terrain(const char* path, unsigned int shaderProgram)
 		{
@@ -30,9 +39,9 @@ class Terrain
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
 		}
-
+		
 	private:
-		const int unsigned res = 20;
+		const int unsigned res = 25;
 		int width;
 		int height;
 		int nChanels;	
@@ -40,9 +49,10 @@ class Terrain
 
 		void loadHeightMap(const char* path, unsigned int shaderProgram)
 		{
-			glGenTextures(1, &texture);
+			glGenTextures(1, &heightMap);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture);
+			glBindTexture(GL_TEXTURE_2D, heightMap);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -51,7 +61,7 @@ class Terrain
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			
 			heightMapData = stbi_load(path, &width, &height, &nChanels, 0);
-	
+			uTexelSize = glm::vec2(1.0f/width, 1.0f/height);
 			if(heightMapData)
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightMapData);

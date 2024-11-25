@@ -1,5 +1,6 @@
 #version 410 core
 
+uniform sampler2D uHeightMap;
 uniform float redComponent;
 uniform float greenComponent;
 uniform float blueComponent;
@@ -7,14 +8,15 @@ uniform float blueComponent;
 uniform float brightness;
 
 uniform float heightScale;
-uniform float colorOffset;
+uniform float heightOffset;
+
+uniform vec2 uTexelSize;
 
 in float Height;
 out vec4 FragColor;
 
 void main()
-{
-	float h = (Height + colorOffset)/heightScale;
-	h *= brightness;
-	FragColor = vec4(h*redComponent, h*greenComponent, h*blueComponent, 1.0f);
+{	
+	float h = (Height + heightOffset)/heightScale;
+	FragColor = h * vec4(1.0f + brightness);
 }

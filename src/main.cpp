@@ -68,7 +68,9 @@ int main()
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
     Terrain terrain("assets/heightmap.png", program);
-    
+
+
+
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -81,26 +83,36 @@ int main()
     glEnableVertexAttribArray(1);
      
 	bool wireframeMode = true;
-    while(!glfwWindowShouldClose(window))
-    {
-      glfwPollEvents();
-      
-      ImGui_ImplOpenGL3_NewFrame();
-      ImGui_ImplGlfw_NewFrame();
-      ImGui::NewFrame();
-	  
-	  ImGui::Begin("Configuration");
-	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
-	  ImGui::ColorEdit4("Color", terrain.color);	
 
-	  ImGui::SliderFloat("Brightness", &terrain.brightness, 0.0f, 2.0f, "%.1f");
+	float FPSplot[60] = {0.0f};
+	int plotPos = 0;
+
+	while(!glfwWindowShouldClose(window))
+	{
+	  glfwPollEvents();
+		  
+	  ImGui_ImplOpenGL3_NewFrame();
+	  ImGui_ImplGlfw_NewFrame();
+	  ImGui::NewFrame();
+		
+	  ImGui::Begin("Configuration");
+	  ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
+		
+	  if(plotPos > 59)
+		plotPos = 0;
+		
+	  FPSplot[plotPos++] = ImGui::GetIO().Framerate;
+	  ImGui::PlotLines("##", FPSplot, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
+
+	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
+	  ImGui::ColorEdit4("Color", terrain.color);  
+
+	  ImGui::SliderFloat("Brightness", &terrain.brightness, -1.0f, 1.0f, "%.1f");
 
 	  ImGui::SliderFloat("Height Scale", &terrain.heightScale, 16.0f, 128.0f, "%1.0f");
-	  ImGui::SliderFloat("Color Offset", &terrain.colorOffset, 0, 32.0f, "%1.0f");
 
+		
 	  ImGui::End();
-
-
 	  if(wireframeMode == true)
 		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	  else
@@ -127,9 +139,11 @@ int main()
 	  setUniformFloat(program, "brightness", terrain.brightness);
 
 	  setUniformFloat(program, "heightScale", terrain.heightScale);
-	  setUniformFloat(program, "colorOffset", terrain.colorOffset);
+	  setUniformFloat(program, "heightOffset", terrain.heightOffset);
+	  setUniformVec2(program, "uTexelSize", terrain.uTexelSize);		
 
-      glBindVertexArray(VAO);
+      
+	  glBindVertexArray(VAO);
       terrain.drawTerrain();
 
       ImGui::Render();

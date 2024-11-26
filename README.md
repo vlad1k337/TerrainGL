@@ -1,2 +1,2 @@
-# terrain-engine
-Simple C++/OpenGL engine for rendering beautiful terrains
+# Terrain Renderer
+Simple C++/OpenGL renderer of beautiful terrains

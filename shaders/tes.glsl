@@ -9,13 +9,11 @@ uniform mat4 projection;
  
 uniform float heightScale;
 uniform float heightOffset;
-
 uniform vec2 uTexelSize; 
 
 in vec2 TextureCoord[];
- 
 out float Height;
-
+out vec4 normal;
  
 vec4 p00 = gl_in[0].gl_Position;
 vec4 p01 = gl_in[1].gl_Position;
@@ -34,22 +32,14 @@ vec2 getTex(float u, float v)
 	vec2 t  = mix(t0, t1, v);
 	return t;
 }
- 
-float getHeight(float u, float v)
-{
-	vec2 t0 = mix(t00, t01, u);
-	vec2 t1 = mix(t10, t11, u);
-	vec2 t  = mix(t0, t1, v);
-	return texture(heightMap, t).y * heightScale - heightOffset;
-}
- 
+
 vec4 getPos(float u, float v)
 {
 	vec4 n0 = mix(p00, p01, u);
 	vec4 n1 = mix(p10, p11, u);
 	vec4 n  = mix(n0, n1, v);
  
-	return vec4(n.x, getHeight(u, v), n.zw);
+	return vec4(n.x, texture(heightMap, getTex(u, v)).r * heightScale - heightOffset, n.zw);
 }
  
 void main()
@@ -58,7 +48,7 @@ void main()
     float v = gl_TessCoord.y;
 
 	vec2 TexCoord = getTex(u, v);
-	
+
     vec4 p = getPos(u, v);
 	Height = p.y;
 

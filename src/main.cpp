@@ -106,10 +106,10 @@ int main()
 
 	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
 	  ImGui::ColorEdit4("Color", terrain.color);  
-
 	  ImGui::SliderFloat("Brightness", &terrain.brightness, -1.0f, 1.0f, "%.1f");
 
 	  ImGui::SliderFloat("Height Scale", &terrain.heightScale, 16.0f, 128.0f, "%1.0f");
+	  ImGui::SliderFloat("Height Offset", &terrain.heightOffset, 0.0f, 32.0f, "%1.0f");
 
 		
 	  ImGui::End();

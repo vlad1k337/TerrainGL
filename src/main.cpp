@@ -17,7 +17,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void proccesInput(GLFWwindow* window);
 
-glm::vec3 cameraPos   = glm::vec3(0.0f, 3.0f,  0.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 50.0f, 0.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -69,8 +69,6 @@ int main()
 
     Terrain terrain("assets/heightmap.png", program);
 
-
-
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -97,7 +95,14 @@ int main()
 		
 	  ImGui::Begin("Configuration");
 	  ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
-		
+
+	  ImGuiStyle& style = ImGui::GetStyle();
+	  style.TabRounding = 8.f;
+	  style.FrameRounding = 8.f;
+	  style.GrabRounding = 8.f;
+	  style.WindowRounding = 8.f;
+	  style.PopupRounding = 8.f;	
+
 	  if(plotPos > 59)
 		plotPos = 0;
 		

@@ -21,8 +21,7 @@ unsigned int compileShader(const char* path, GLenum shaderType)
 	fseek(sourceFile, 0, SEEK_SET);
 	
 	/* read the contenents */
-	char* source = (char*)malloc(size + 1);
-	source[size] = '\0';
+	char* source = new char[size + 1];
 	fread(source, size, 1, sourceFile);
 	fclose(sourceFile);
 
@@ -39,10 +38,10 @@ unsigned int compileShader(const char* path, GLenum shaderType)
 	if(status == GL_FALSE)
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		printf("Could not compile shader:\n%s", infoLog);
+		printf("In %s\nCould not compile shader:\n%s", path, infoLog);
 	}
 
-	free(source);
+	delete[] source;
 
 	return shader;
 }

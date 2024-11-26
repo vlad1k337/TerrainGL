@@ -11,7 +11,6 @@
 
 #include "shaders.h"
 
-
 class Terrain
 {
 	public:
@@ -39,7 +38,7 @@ class Terrain
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
 		}
-		
+
 	private:
 		const int unsigned res = 25;
 		int width;

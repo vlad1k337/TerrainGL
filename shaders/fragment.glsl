@@ -16,5 +16,5 @@ out vec4 FragColor;
 void main()
 {	
 	float h = (Height + heightOffset)/heightScale;
-	FragColor = h * vec4(redComponent, blueComponent, greenComponent, 1.0f) + brightness;
+	FragColor = h * vec4(redComponent, greenComponent, blueComponent, 1.0f) + brightness;
 }

@@ -14,7 +14,7 @@
 class Terrain
 {
 	public:
-		float color[4]   = {1.0f, 1.0f, 1.0f, 1.0f};	
+		float color[4]     = {1.0f, 1.0f, 1.0f, 1.0f};	
 		float brightness = 0.0f;
 		
 		float heightScale  = 64.0f;
@@ -23,13 +23,17 @@ class Terrain
 		unsigned int VBO;
 		unsigned int heightMap;
 
-		bool normalMode = false;
 		glm::vec2 uTexelSize;		
 		
 		Terrain(const char* path, unsigned int shaderProgram)
 		{
 			loadHeightMap(path, shaderProgram);
 			constructVBO();
+		}
+
+		~Terrain()
+		{
+
 		}
 		
 		void drawTerrain()
@@ -39,7 +43,7 @@ class Terrain
 		}
 
 	private:
-		const int unsigned res = 25;
+		const int unsigned res = 20;
 		int width;
 		int height;
 		int nChanels;	

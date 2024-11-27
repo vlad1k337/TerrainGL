@@ -16,7 +16,6 @@
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-static void mouse_callback_stub(GLFWwindow* window, double xpos, double ypos);
 void proccesInput(GLFWwindow* window);
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 50.0f, 0.0f);
@@ -85,12 +84,12 @@ int main()
 
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
-    Terrain terrain("assets/heightmap.png", program);
+    Terrain* terrain = new Terrain("assets/heightmap.png", program);
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrain.VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, terrain->VBO);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -98,7 +97,6 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
      
-	bool wireframeMode = true;
 
 	float FPSplot[60] = {0.0f};
 	int plotPos = 0;
@@ -118,23 +116,32 @@ int main()
 	  FPSplot[plotPos++] = ImGui::GetIO().Framerate;
 	  ImGui::PlotLines("##", FPSplot, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
 
-	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
-	  ImGui::ColorEdit4("Color", terrain.color);  
+	  static int e = 0;
+	  if(ImGui::RadioButton("Normal", &e, 0))
+	  {
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	  }
+	  ImGui::SameLine();
+	  if(ImGui::RadioButton("Wireframe", &e, 1))
+	  {
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	  }
+	  ImGui::SameLine();
+	  if(ImGui::RadioButton("Points", &e, 2))
+	  {
+		  glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	  }
 
-	  ImGui::SliderFloat("Brightness", &terrain.brightness, -1.0f, 1.0f, "%.1f");
-	  ImGui::SliderFloat("Height Scale", &terrain.heightScale, 16.0f, 128.0f, "%1.0f");
-	  ImGui::SliderFloat("Height Offset", &terrain.heightOffset, 0.0f, 32.0f, "%1.0f");
+	  ImGui::ColorEdit4("Color", terrain->color);  
+
+	  ImGui::SliderFloat("Brightness", &terrain->brightness, -1.0f, 1.0f, "%.1f");
+	  ImGui::SliderFloat("Height Scale", &terrain->heightScale, 16.0f, 128.0f, "%1.0f");
+	  ImGui::SliderFloat("Height Offset", &terrain->heightOffset, 0.0f, 32.0f, "%1.0f");
 	  ImGui::SliderFloat("FOV", &fov, 45.0f, 90.0f, "%1.0f");
 		
 	  ImGui::End();
 
-	  if(wireframeMode == true)
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	  else
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       
       glUseProgram(program);
@@ -147,16 +154,16 @@ int main()
       setUniformMatrix(program, "view", view);
       setUniformMatrix(program, "projection", projection);
 	
-	  setUniformFloat(program, "redComponent", terrain.color[0]);
-	  setUniformFloat(program, "greenComponent", terrain.color[1]);
-	  setUniformFloat(program, "blueComponent", terrain.color[2]);
-	  setUniformFloat(program, "brightness", terrain.brightness);
+	  setUniformFloat(program, "redComponent", terrain->color[0]);
+	  setUniformFloat(program, "greenComponent", terrain->color[1]);
+	  setUniformFloat(program, "blueComponent", terrain->color[2]);
+	  setUniformFloat(program, "brightness", terrain->brightness);
 
-	  setUniformFloat(program, "heightScale", terrain.heightScale);
-	  setUniformFloat(program, "heightOffset", terrain.heightOffset);
+	  setUniformFloat(program, "heightScale", terrain->heightScale);
+	  setUniformFloat(program, "heightOffset", terrain->heightOffset);
 
 	  glBindVertexArray(VAO);
-      terrain.drawTerrain();
+      terrain->drawTerrain();
 
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -166,6 +173,7 @@ int main()
       
     }
 
+	delete terrain;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

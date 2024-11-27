@@ -32,5 +32,5 @@ $(BUILDIR):
 $(IMGUI_BUILDIR):
 	mkdir -p $(IMGUI_BUILDIR)
 
-clean: 
+clean:
 	rm -rf $(TARGET) $(BUILDIR)

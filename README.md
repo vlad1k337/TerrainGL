@@ -1,5 +1,6 @@
 # Terrain Renderer
-Simple C++/OpenGL renderer of beautiful terrains 
+Simple C++/OpenGL renderer of beautiful terrains \
+![](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGpuNDV0MXB5dGFsdG9iejVoN3hqdm9la3B4MWthMGJ3OThuYXkyOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fOxiqg4ICvaIlt1Qtv/giphy.gif)
 
 ### Features
 - Terrain rendering based on heightmap
@@ -15,9 +16,12 @@ Simple C++/OpenGL renderer of beautiful terrains
 ``` Shell
 make
 ```
+And put your heightmap at ./assets/ directory
+``` Shell
+cp /path/to/my/heightmap ./assets/heightmap.png
+```
 
 #### Controls
 **b** - show cursor, interact with ImGui panel \
 **n** - hide cursor, enable camera movement
 
-![](https://giphy.com/gifs/fOxiqg4ICvaIlt1Qtv)

@@ -19,3 +19,5 @@ make
 #### Controls
 **b** - show cursor, interact with ImGui panel \
 **n** - hide cursor, enable camera movement
+
+![](https://giphy.com/gifs/fOxiqg4ICvaIlt1Qtv)

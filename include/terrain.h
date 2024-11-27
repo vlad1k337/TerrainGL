@@ -24,7 +24,6 @@ class Terrain
 		unsigned int heightMap;
 
 		bool normalMode = false;
-	
 		glm::vec2 uTexelSize;		
 		
 		Terrain(const char* path, unsigned int shaderProgram)

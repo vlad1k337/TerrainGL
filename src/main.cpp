@@ -1,3 +1,4 @@
+#include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -8,13 +9,14 @@
 #include "shaders.h"
 #include "terrain.h"
 
-#include <iostream>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+static void mouse_callback_stub(GLFWwindow* window, double xpos, double ypos);
 void proccesInput(GLFWwindow* window);
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 50.0f, 0.0f);
@@ -25,6 +27,12 @@ glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
+float lastOffsetX = 400, lastOffsetY = 300;
+float yaw = -90.0f;
+float pitch = 0.0f;
+float fov = 45.0f;
+
+static bool cursorBlocked = true;
 
 int main()
 {
@@ -43,6 +51,9 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
+	glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -56,6 +67,13 @@ int main()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
     ImGui_ImplGlfw_InitForOpenGL(window, true);         
     ImGui_ImplOpenGL3_Init();
+	ImGuiStyle& style = ImGui::GetStyle();
+	
+	style.TabRounding = 8.f;
+	style.FrameRounding = 8.f;
+	style.GrabRounding = 8.f;
+	style.WindowRounding = 8.f;
+	style.PopupRounding = 8.f;	
     
     glEnable(GL_DEPTH_TEST);
 
@@ -96,34 +114,25 @@ int main()
 	  ImGui::Begin("Configuration");
 	  ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
 
-	  ImGuiStyle& style = ImGui::GetStyle();
-	  style.TabRounding = 8.f;
-	  style.FrameRounding = 8.f;
-	  style.GrabRounding = 8.f;
-	  style.WindowRounding = 8.f;
-	  style.PopupRounding = 8.f;	
-
-	  if(plotPos > 59)
-		plotPos = 0;
-		
+	  if(plotPos > 59) plotPos = 0;
 	  FPSplot[plotPos++] = ImGui::GetIO().Framerate;
 	  ImGui::PlotLines("##", FPSplot, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
 
 	  ImGui::Checkbox("Wireframe Mode", &wireframeMode);
 	  ImGui::ColorEdit4("Color", terrain.color);  
-	  ImGui::SliderFloat("Brightness", &terrain.brightness, -1.0f, 1.0f, "%.1f");
 
+	  ImGui::SliderFloat("Brightness", &terrain.brightness, -1.0f, 1.0f, "%.1f");
 	  ImGui::SliderFloat("Height Scale", &terrain.heightScale, 16.0f, 128.0f, "%1.0f");
 	  ImGui::SliderFloat("Height Offset", &terrain.heightOffset, 0.0f, 32.0f, "%1.0f");
-
+	  ImGui::SliderFloat("FOV", &fov, 45.0f, 90.0f, "%1.0f");
 		
 	  ImGui::End();
+
 	  if(wireframeMode == true)
 		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	  else
 		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-      proccesInput(window);
 
       glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -132,7 +141,7 @@ int main()
       
       model = glm::mat4(1.0f);
       view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-      projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 1000.0f);
+      projection = glm::perspective(glm::radians(fov), 800.0f/600.0f, 0.1f, 1000.0f);
 
       setUniformMatrix(program, "model", model);
       setUniformMatrix(program, "view", view);
@@ -145,18 +154,18 @@ int main()
 
 	  setUniformFloat(program, "heightScale", terrain.heightScale);
 	  setUniformFloat(program, "heightOffset", terrain.heightOffset);
-	  setUniformVec2(program, "uTexelSize", terrain.uTexelSize);		
 
-      
 	  glBindVertexArray(VAO);
       terrain.drawTerrain();
 
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-      
+		
+	  proccesInput(window);
       glfwSwapBuffers(window);
       
     }
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -164,28 +173,70 @@ int main()
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void proccesInput(GLFWwindow *window)
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	float currentOffsetX = xpos - lastOffsetX;
+	float currentOffsetY  = -(ypos - lastOffsetY);
+
+	if(cursorBlocked == false)
+	{
+		lastOffsetX = xpos;
+		lastOffsetY = ypos;
+		return;
+	}
+
+	currentOffsetX *= 0.1f;
+	currentOffsetY *= 0.1f;
+
+	lastOffsetX = xpos;
+	lastOffsetY = ypos;
+
+	yaw += currentOffsetX;
+	pitch += currentOffsetY;
+
+	if (pitch > 89.0f)  pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
+void proccesInput(GLFWwindow* window)
 {
   const float speed = 0.5f;
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     cameraPos += cameraFront * speed;
+
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     cameraPos -= cameraFront * speed;
+
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
+
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-	cameraPos += cameraUp * speed;
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	cameraPos -= cameraUp * speed;
 
-
+  if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+  {
+	cursorBlocked = false;
+  	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
+  }
+  if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+  {
+    cursorBlocked = true;
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  }
 }
+
+

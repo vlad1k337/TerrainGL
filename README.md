@@ -20,6 +20,7 @@ And put your heightmap at ./assets/ directory
 ``` Shell
 cp /path/to/my/heightmap ./assets/heightmap.png
 ```
+or use the default one
 
 #### Controls
 **b** - show cursor, interact with ImGui panel \

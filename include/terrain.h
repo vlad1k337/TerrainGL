@@ -44,9 +44,7 @@ class Terrain
 
 	private:
 		const int unsigned res = 20;
-		int width;
-		int height;
-		int nChanels;	
+		int width, height, nrChanels;	
 		unsigned char* heightMapData;
 
 		void loadHeightMap(const char* path, unsigned int shaderProgram)
@@ -62,7 +60,7 @@ class Terrain
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			
-			heightMapData = stbi_load(path, &width, &height, &nChanels, 0);
+			heightMapData = stbi_load(path, &width, &height, &nrChanels, 0);
 			uTexelSize = glm::vec2(1.0f/width, 1.0f/height);
 			if(heightMapData)
 			{

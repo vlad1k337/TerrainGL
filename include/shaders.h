@@ -22,6 +22,7 @@ unsigned int compileShader(const char* path, GLenum shaderType)
 	
 	/* read the contenents */
 	char* source = new char[size + 1];
+	source[size] = '\0';
 	fread(source, size, 1, sourceFile);
 	fclose(sourceFile);
 

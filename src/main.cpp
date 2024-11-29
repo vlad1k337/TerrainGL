@@ -9,7 +9,6 @@
 #include "shaders.h"
 #include "terrain.h"
 
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -80,7 +79,6 @@ int main()
     unsigned int tesControl = compileShader("shaders/tcs.glsl", GL_TESS_CONTROL_SHADER);
     unsigned int tesEval    = compileShader("shaders/tes.glsl", GL_TESS_EVALUATION_SHADER);
     unsigned int fragment   = compileShader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
-   
 
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
@@ -100,6 +98,7 @@ int main()
 
 	float FPSplot[60] = {0.0f};
 	int plotPos = 0;
+
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -143,10 +142,10 @@ int main()
 
 	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      
+
       glUseProgram(program);
-      
-      model = glm::mat4(1.0f);
+    
+	  model = glm::mat4(1.0f);
       view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
       projection = glm::perspective(glm::radians(fov), 800.0f/600.0f, 0.1f, 1000.0f);
 
@@ -164,6 +163,7 @@ int main()
 
 	  glBindVertexArray(VAO);
       terrain->drawTerrain();
+
 
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -234,6 +234,8 @@ void proccesInput(GLFWwindow* window)
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	cameraPos += cameraUp * speed;
 
   if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
   {

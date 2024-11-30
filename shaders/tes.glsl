@@ -48,7 +48,9 @@ void main()
     float v = gl_TessCoord.y;
 
 	vec2 TexCoord = getTex(u, v);
-
+	normal = normalize(vec4(getTex(uTexelSize.x + u, v) + getTex(uTexelSize.x - u, v), 2.0f * (uTexelSize.x + uTexelSize.y)/2, getTex(u, v + uTexelSize.y) + 
+	getTex(u, v - uTexelSize.y)));
+		
     vec4 p = getPos(u, v);
 	Height = p.y;
 

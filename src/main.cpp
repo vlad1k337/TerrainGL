@@ -32,7 +32,7 @@ float fov = 45.0f;
 
 static bool cursorBlocked = true;
 
-int main()
+int main(int argc, char** argv)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -82,7 +82,15 @@ int main()
 
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
-    Terrain* terrain = new Terrain("assets/heightmap.png", program);
+	Terrain* terrain;
+	
+	if(argc > 1)
+		terrain = new Terrain(argv[1], program);
+	else {
+		std::cout << "Please specify heightmap image!\n";
+		return -1;
+	}
+	
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);

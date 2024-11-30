@@ -44,7 +44,7 @@ class Terrain
 
 	private:
 		const int unsigned res = 20;
-		int width, height, nrChanels;	
+	    int width, height, nrChanels;	
 		unsigned char* heightMapData;
 
 		void loadHeightMap(const char* path, unsigned int shaderProgram)
@@ -60,18 +60,19 @@ class Terrain
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			
-			heightMapData = stbi_load(path, &width, &height, &nrChanels, 0);
+			heightMapData = stbi_load(path, &width, &height, &nrChanels, STBI_rgb_alpha);
 			uTexelSize = glm::vec2(1.0f/width, 1.0f/height);
-			if(heightMapData)
+			if(!heightMapData)
 			{
+				
+				std::cout << "Could not download the height map.\n" << stbi_failure_reason();
+			}
+			else {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightMapData);
 				glGenerateMipmap(GL_TEXTURE_2D);
 
 				setUniformInt(shaderProgram, "heightMap", 0);
 				std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
-			}
-			else {
-				std::cout << "Could not download the height map.";
 			}
 			stbi_image_free(heightMapData);
 		}

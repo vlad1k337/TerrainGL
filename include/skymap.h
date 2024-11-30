@@ -67,12 +67,12 @@ class Skymap
 		 1.0f, -1.0f,  1.0f
 	};
 		std::vector<std::string> faces = {
-			"assets/right.jpg",
-			"assets/left.jpg",
-			"assets/top.jpg",
-			"assets/bottom.jpg",
-			"assets/front.jpg",
-			"assets/back.jpg"
+			"assets/skybox/right.jpg",
+			"assets/skybox/left.jpg",
+			"assets/skybox/top.jpg",
+			"assets/skybox/bottom.jpg",
+			"assets/skybox/front.jpg",
+			"assets/skybox/back.jpg"
 		};
 	
 		int width, height, nrChannels;

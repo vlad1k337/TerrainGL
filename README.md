@@ -26,3 +26,4 @@ or use the default one
 **b** - show cursor, interact with ImGui panel \
 **n** - hide cursor, enable camera movement
 
+![kek](https://github.com/user-attachments/assets/7bd32e78-9984-42ec-a1db-40725d6a09ad)

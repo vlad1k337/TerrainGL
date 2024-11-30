@@ -16,11 +16,12 @@ Simple C++/OpenGL renderer of beautiful terrains \
 ``` Shell
 make
 ```
-And put your heightmap at ./assets/ directory
+#### Then to run:
 ``` Shell
-cp /path/to/my/heightmap ./assets/heightmap.png
+./main assets/heightmap.png
 ```
-or use the default one
+or specify any other heightmap picture
+##### Currently only supports .png heightmaps!
 
 #### Controls
 **b** - show cursor, interact with ImGui panel \

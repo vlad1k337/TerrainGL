@@ -168,6 +168,9 @@ int main(int argc, char** argv)
 
 	  setUniformFloat(program, "heightScale", terrain->heightScale);
 	  setUniformFloat(program, "heightOffset", terrain->heightOffset);
+	  setUniformVec2(program, "uTexelSize", terrain->uTexelSize);
+
+	  setUniformVec3(program, "cameraPos", cameraPos);
 
 	  glBindVertexArray(VAO);
       terrain->drawTerrain();

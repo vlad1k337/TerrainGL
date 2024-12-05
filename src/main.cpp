@@ -83,12 +83,12 @@ int main(int argc, char** argv)
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
 	Terrain* terrain;
-	
+
 	if(argc > 1)
 		terrain = new Terrain(argv[1], program);
 	else {
-		std::cout << "Please specify heightmap image!\n";
-		return -1;
+		terrain = new Terrain("assets/iceland_heightmap.png", program);
+		std::cout << "Using default height-map: assets/iceland_heightmap.png\n";
 	}
 	
 
@@ -103,15 +103,13 @@ int main(int argc, char** argv)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
      
-
 	float FPSplot[60] = {0.0f};
 	int plotPos = 0;
-
 
 	while(!glfwWindowShouldClose(window))
 	{
 	  glfwPollEvents();
-		  
+
 	  ImGui_ImplOpenGL3_NewFrame();
 	  ImGui_ImplGlfw_NewFrame();
 	  ImGui::NewFrame();
@@ -142,8 +140,8 @@ int main(int argc, char** argv)
 	  ImGui::ColorEdit4("Color", terrain->color);  
 
 	  ImGui::SliderFloat("Brightness", &terrain->brightness, -1.0f, 1.0f, "%.1f");
+	  ImGui::SliderFloat("Shininess", &terrain->shininess, 0.0f, 48.0f, "%1.0f");
 	  ImGui::SliderFloat("Height Scale", &terrain->heightScale, 16.0f, 128.0f, "%1.0f");
-	  ImGui::SliderFloat("Height Offset", &terrain->heightOffset, 0.0f, 32.0f, "%1.0f");
 	  ImGui::SliderFloat("FOV", &fov, 45.0f, 90.0f, "%1.0f");
 		
 	  ImGui::End();
@@ -165,6 +163,7 @@ int main(int argc, char** argv)
 	  setUniformFloat(program, "greenComponent", terrain->color[1]);
 	  setUniformFloat(program, "blueComponent", terrain->color[2]);
 	  setUniformFloat(program, "brightness", terrain->brightness);
+	  setUniformFloat(program, "shininess", terrain->shininess);
 
 	  setUniformFloat(program, "heightScale", terrain->heightScale);
 	  setUniformFloat(program, "heightOffset", terrain->heightOffset);
@@ -175,7 +174,6 @@ int main(int argc, char** argv)
 	  glBindVertexArray(VAO);
       terrain->drawTerrain();
 
-
       ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		
@@ -185,6 +183,8 @@ int main(int argc, char** argv)
     }
 
 	delete terrain;
+
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -195,6 +195,10 @@ int main(int argc, char** argv)
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+	cameraFront = glm::vec3(0.0, 0.0, -1.0);
+	lastOffsetX = width/2;
+	lastOffsetY = height/2;
+	glfwSetCursorPos(window, width/2, height/2);	
 }
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -231,6 +235,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void proccesInput(GLFWwindow* window)
 {
   const float speed = 0.5f;
+
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
@@ -253,11 +258,13 @@ void proccesInput(GLFWwindow* window)
 	cursorBlocked = false;
   	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
   }
+
   if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
   {
     cursorBlocked = true;
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   }
+
 }
 
 

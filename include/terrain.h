@@ -15,7 +15,8 @@ class Terrain
 {
 	public:
 		float color[4]     = {1.0f, 1.0f, 1.0f, 1.0f};	
-		float brightness = 0.0f;
+		float brightness = 0.0f;						// affects color whiteness
+		float shininess = 32.0f;						// affects Blinn-Phong specular lighting
 		
 		float heightScale  = 64.0f;
 		float heightOffset = 16.0f;

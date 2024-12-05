@@ -8,13 +8,12 @@
 
 #include "shaders.h"
 #include "terrain.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "gui.h"
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+static void scroll_callback(GLFWwindow* window, double xpos, double ypos);
+
 void proccesInput(GLFWwindow* window);
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 50.0f, 0.0f);
@@ -48,10 +47,12 @@ int main(int argc, char** argv)
     }
 
     glfwMakeContextCurrent(window);
+
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
-	glfwSetCursorPosCallback(window, mouse_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -59,20 +60,8 @@ int main(int argc, char** argv)
 		return -1;
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);         
-    ImGui_ImplOpenGL3_Init();
-	ImGuiStyle& style = ImGui::GetStyle();
-	
-	style.TabRounding = 8.f;
-	style.FrameRounding = 8.f;
-	style.GrabRounding = 8.f;
-	style.WindowRounding = 8.f;
-	style.PopupRounding = 8.f;	
-    
+	initGui(window);
+
     glEnable(GL_DEPTH_TEST);
 
     unsigned int vertex     = compileShader("shaders/vertex.glsl", GL_VERTEX_SHADER);
@@ -103,53 +92,15 @@ int main(int argc, char** argv)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
      
-	float FPSplot[60] = {0.0f};
-	int plotPos = 0;
-
 	while(!glfwWindowShouldClose(window))
 	{
 	  glfwPollEvents();
-
-	  ImGui_ImplOpenGL3_NewFrame();
-	  ImGui_ImplGlfw_NewFrame();
-	  ImGui::NewFrame();
-		
-	  ImGui::Begin("Configuration");
-	  ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
-
-	  if(plotPos > 59) plotPos = 0;
-	  FPSplot[plotPos++] = ImGui::GetIO().Framerate;
-	  ImGui::PlotLines("##", FPSplot, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
-
-	  static int e = 0;
-	  if(ImGui::RadioButton("Normal", &e, 0))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	  }
-	  ImGui::SameLine();
-	  if(ImGui::RadioButton("Wireframe", &e, 1))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	  }
-	  ImGui::SameLine();
-	  if(ImGui::RadioButton("Points", &e, 2))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	  }
-
-	  ImGui::ColorEdit4("Color", terrain->color);  
-
-	  ImGui::SliderFloat("Brightness", &terrain->brightness, -1.0f, 1.0f, "%.1f");
-	  ImGui::SliderFloat("Shininess", &terrain->shininess, 0.0f, 48.0f, "%1.0f");
-	  ImGui::SliderFloat("Height Scale", &terrain->heightScale, 16.0f, 128.0f, "%1.0f");
-	  ImGui::SliderFloat("FOV", &fov, 45.0f, 90.0f, "%1.0f");
-		
-	  ImGui::End();
 
 	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glUseProgram(program);
+	  addWidgetsGui(terrain);
     
 	  model = glm::mat4(1.0f);
       view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -173,9 +124,7 @@ int main(int argc, char** argv)
 
 	  glBindVertexArray(VAO);
       terrain->drawTerrain();
-
-      ImGui::Render();
-      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	  renderGui();
 		
 	  proccesInput(window);
       glfwSwapBuffers(window);
@@ -184,10 +133,7 @@ int main(int argc, char** argv)
 
 	delete terrain;
 
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+	cleanGui();
     glfwTerminate(); 
     return 0;
 }
@@ -230,6 +176,15 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     front.y = sin(glm::radians(pitch));
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
+}
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 90.0f)
+        fov = 90.0f; 
 }
 
 void proccesInput(GLFWwindow* window)

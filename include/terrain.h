@@ -30,6 +30,7 @@ class Terrain
 		{
 			loadHeightMap(path, shaderProgram);
 			constructVBO();
+
 		}
 
 		~Terrain()

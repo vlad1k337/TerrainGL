@@ -4,7 +4,8 @@ Simple C++/OpenGL renderer of beautiful terrains \
 
 ### Features
 - Terrain rendering based on heightmap
-- Dynamic Levels of Detail
+- Dynamic Level of Detail
+- Blinn-Phong shading, Gooch shading (implemented, but needs more graining)
 - Cool ImGui configuration panel
 
 #### Requirements

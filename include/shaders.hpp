@@ -5,32 +5,20 @@
 
 #include <cstdarg>
 #include <iostream>
+#include <iterator>
+#include <fstream>
 
 unsigned int compileShader(const char* path, GLenum shaderType)
 {	
-	FILE* sourceFile;
-	sourceFile = fopen(path, "r");
-	if(sourceFile == NULL)
-	{
-		std::cout << "Could not locate shader files";
-	}
 
-	/* get file length */
-	fseek(sourceFile, 0, SEEK_END);
-	long size = ftell(sourceFile);
-	fseek(sourceFile, 0, SEEK_SET);
-	
-	/* read the contenents */
-	char* source = new char[size + 1];
-	source[size] = '\0';
-	fread(source, size, 1, sourceFile);
-	fclose(sourceFile);
-
+	std::ifstream in(path);
+	std::string shaderFile((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	const char* shaderSource = shaderFile.c_str();
 
 	/* compile the shader */
 	unsigned int shader;
 	shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, (const char**)&source, NULL);
+	glShaderSource(shader, 1, &shaderSource, NULL);
 	glCompileShader(shader);
 	
 	char infoLog[512];
@@ -41,8 +29,6 @@ unsigned int compileShader(const char* path, GLenum shaderType)
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
 		printf("In %s\nCould not compile shader:\n%s", path, infoLog);
 	}
-
-	delete[] source;
 
 	return shader;
 }

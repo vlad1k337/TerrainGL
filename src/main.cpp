@@ -6,9 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shaders.h"
-#include "terrain.h"
-#include "gui.h"
+#include "shaders.hpp"
+#include "terrain.hpp"
+#include "gui.hpp"
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -77,21 +77,9 @@ int main(int argc, char** argv)
 		terrain = new Terrain(argv[1], program);
 	else {
 		terrain = new Terrain("assets/iceland_heightmap.png", program);
-		std::cout << "Using default height-map: assets/iceland_heightmap.png\n";
+		std::cout << "Using default height-map: assets/iceland_heightmap.png"  << std::endl;
 	}
-	
 
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, terrain->VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
-    glEnableVertexAttribArray(1);
-     
 	while(!glfwWindowShouldClose(window))
 	{
 	  glfwPollEvents();
@@ -122,8 +110,7 @@ int main(int argc, char** argv)
 
 	  setUniformVec3(program, "cameraPos", cameraPos);
 
-	  glBindVertexArray(VAO);
-      terrain->drawTerrain();
+      terrain->renderTerrain();
 	  renderGui();
 		
 	  proccesInput(window);

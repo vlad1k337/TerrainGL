@@ -7,7 +7,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "terrain.h"
+#include "terrain.hpp"
 
 float plotFPSGraph[60] = {0.0};
 int plotFPSPos = 0;

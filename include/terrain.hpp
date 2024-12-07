@@ -9,7 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "shaders.h"
+#include "shaders.hpp"
 
 class Terrain
 {
@@ -21,15 +21,13 @@ class Terrain
 		float heightScale  = 64.0f;
 		float heightOffset = 16.0f;
 
-		unsigned int VBO;
-		unsigned int heightMap;
-
 		glm::vec2 uTexelSize;		
 		
 		Terrain(const char* path, unsigned int shaderProgram)
 		{
 			loadHeightMap(path, shaderProgram);
 			constructVBO();
+			constructVAO();
 
 		}
 
@@ -38,13 +36,18 @@ class Terrain
 
 		}
 		
-		void drawTerrain()
+		void renderTerrain()
 		{
+			glBindVertexArray(VAO);
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
 		}
 
 	private:
+		unsigned int VAO;
+		unsigned int VBO;
+		unsigned int heightMap;	
+
 		const int unsigned res = 20;
 	    int width, height, nrChanels;	
 		unsigned char* heightMapData;
@@ -118,6 +121,23 @@ class Terrain
 			glGenBuffers(1, &VBO);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+		}
+
+		void constructVAO()
+		{
+			glGenVertexArrays(1, &VAO);
+			glBindVertexArray(VAO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(sizeof(float) * 3));
+			glEnableVertexAttribArray(1);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			 
 		}
 
 };

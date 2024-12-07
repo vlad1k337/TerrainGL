@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <iostream>
-
 #include <glm/glm.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -25,7 +24,8 @@ class Terrain
 		
 		Terrain(const char* path, unsigned int shaderProgram)
 		{
-			loadHeightMap(path, shaderProgram);
+			this->shaderProgram = shaderProgram;
+			loadHeightMap(path);
 			constructVBO();
 			constructVAO();
 
@@ -38,6 +38,15 @@ class Terrain
 		
 		void renderTerrain()
 		{
+		    setUniformFloat(shaderProgram, "redComponent", color[0]);
+			setUniformFloat(shaderProgram, "greenComponent", color[1]);
+			setUniformFloat(shaderProgram, "blueComponent", color[2]);
+			setUniformFloat(shaderProgram, "brightness", brightness);
+			setUniformFloat(shaderProgram, "shininess", shininess);
+			setUniformFloat(shaderProgram, "heightScale", heightScale);
+			setUniformFloat(shaderProgram, "heightOffset", heightOffset);
+			setUniformVec2(shaderProgram, "uTexelSize", uTexelSize);
+			
 			glBindVertexArray(VAO);
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
@@ -46,14 +55,15 @@ class Terrain
 	private:
 		unsigned int VAO;
 		unsigned int VBO;
+		unsigned int shaderProgram;
 		unsigned int heightMap;	
 
 		const int unsigned res = 20;
 	    int width, height, nrChanels;	
 		unsigned char* heightMapData;
 
-		void loadHeightMap(const char* path, unsigned int shaderProgram)
-		{
+		void loadHeightMap(const char* path)
+		{	
 			glGenTextures(1, &heightMap);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 			glActiveTexture(GL_TEXTURE0);

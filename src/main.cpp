@@ -23,7 +23,8 @@ glm::mat4 projection;
 Camera camera;
 static bool cursorBlocked = true;
 
-float lastOffsetX = 400, lastOffsetY = 300;
+float lastOffsetX = 400.0f, lastOffsetY = 300.0f;
+float deltaTime = 0.0f, lastTime = 0.0f;
 
 int main(int argc, char** argv)
 {
@@ -75,7 +76,12 @@ int main(int argc, char** argv)
 
 	while(!glfwWindowShouldClose(window))
 	{
-	  glfwPollEvents();
+
+	  float currentTime = static_cast<float>(glfwGetTime());
+	  deltaTime = currentTime - lastTime;
+	  lastTime  = currentTime;
+
+	  proccesInput(window);
 
 	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,9 +101,8 @@ int main(int argc, char** argv)
       terrain->renderTerrain();
 	  renderGui();
 		
-	  proccesInput(window);
       glfwSwapBuffers(window);
-      
+	  glfwPollEvents();
     }
 
 	delete terrain;
@@ -142,25 +147,23 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void proccesInput(GLFWwindow* window)
 {
-  const float speed = 0.5f;
-
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	camera.processMovement(forward); 
+	camera.processMovement(forward, deltaTime); 
 
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	  camera.processMovement(backward);
+	  camera.processMovement(backward, deltaTime);
 
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	  camera.processMovement(up);
+	  camera.processMovement(up, deltaTime);
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	  camera.processMovement(left);
+	  camera.processMovement(left, deltaTime);
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	  camera.processMovement(right);
+	  camera.processMovement(right, deltaTime);
 
   if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
   {

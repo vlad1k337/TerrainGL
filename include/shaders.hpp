@@ -3,14 +3,16 @@
 
 #include <glad/glad.h>
 
-#include <cstdarg>
 #include <iostream>
+#include <cstdarg>
 #include <iterator>
 #include <fstream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 unsigned int compileShader(const char* path, GLenum shaderType)
 {	
-
 	std::ifstream in(path);
 	std::string shaderFile((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 	const char* shaderSource = shaderFile.c_str();
@@ -27,7 +29,7 @@ unsigned int compileShader(const char* path, GLenum shaderType)
 	if(status == GL_FALSE)
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		printf("In %s\nCould not compile shader:\n%s", path, infoLog);
+		std::cout << "In " << path << ":\n" << "couldn't compile a shader\n" << infoLog;
 	}
 
 	return shader;
@@ -52,7 +54,7 @@ unsigned int linkShader(unsigned int shaderCount, ...)
 	if(status == GL_FALSE)
 	{
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		printf("Could not link shader program:\n%s", infoLog);
+		std::cout << "Couldn't link shader program:\n" << infoLog;
 	}
 	return shaderProgram;
 }

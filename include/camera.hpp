@@ -42,18 +42,20 @@ class Camera
 			cameraFront = front;
 		}
 
-		void processMovement(Direction direction)
+		void processMovement(Direction direction, float deltaTime)
 		{
+			float cameraSpeed = speed * deltaTime;
+
 			if(direction == forward)
-				cameraPos += cameraFront * speed;
+				cameraPos += cameraFront * cameraSpeed;
 			if(direction == backward)
-				cameraPos -= cameraFront * speed;
+				cameraPos -= cameraFront * cameraSpeed;
 			if(direction == up)
-				cameraPos += cameraUp * speed;
+				cameraPos += cameraUp * cameraSpeed;
 		    if(direction == left)
-				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
+				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 			if(direction == right)
-				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed;
+				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 		}
 
 		void processMouse(float xoffset, float yoffset)
@@ -92,7 +94,7 @@ class Camera
 		float pitch = 0.0f;
 		float fov = 45.0f;
 
-		float speed = 0.5f;
+		const float speed = 35.0f;
 
 };
 

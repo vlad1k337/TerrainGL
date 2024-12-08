@@ -10,6 +10,7 @@
 #include "shaders.hpp"
 #include "terrain.hpp"
 #include "gui.hpp"
+#include "postprocess.hpp"
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -55,9 +56,8 @@ int main(int argc, char** argv)
 		return -1;
     }
 
-	initGui(window);
-
     glEnable(GL_DEPTH_TEST);
+	initGui(window);
 
     unsigned int vertex     = compileShader("shaders/vertex.glsl", GL_VERTEX_SHADER);
     unsigned int tesControl = compileShader("shaders/tcs.glsl", GL_TESS_CONTROL_SHADER);
@@ -73,6 +73,9 @@ int main(int argc, char** argv)
 		std::cout << "Using default height-map: assets/iceland_heightmap.png"  << std::endl;
 	}
 
+	PostProcess* postProcessing = new PostProcess("shaders/procvertex.glsl", "shaders/procfragment.glsl");
+	PostProcess::checkFramebufferCompleteness();
+
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -83,11 +86,9 @@ int main(int argc, char** argv)
 
 	  proccesInput(window);
 
-	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  postProcessing->prepareProcessed();
 
       glUseProgram(program);
-	  addWidgetsGui(terrain);
     
 	  model = glm::mat4(1.0f);
       view = camera.getLookAt();
@@ -99,13 +100,19 @@ int main(int argc, char** argv)
 	  setUniformVec3(program, "cameraPos", camera.getCameraPos());
 
       terrain->renderTerrain();
-	  renderGui();
+	  postProcessing->setKernel(sharp);
+	  postProcessing->renderProcessed();
 		
+	  
+	  addWidgetsGui(terrain);
+	  renderGui();
+
       glfwSwapBuffers(window);
 	  glfwPollEvents();
     }
 
 	delete terrain;
+	delete postProcessing;
 
 	cleanGui();
     glfwTerminate(); 
@@ -115,6 +122,8 @@ int main(int argc, char** argv)
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	camera.setCameraFront(glm::vec3(0.0, 0.0, -1.0));
 	lastOffsetX = width/2;
 	lastOffsetY = height/2;

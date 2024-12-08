@@ -48,8 +48,10 @@ class Terrain
 			setUniformVec2(shaderProgram, "uTexelSize", uTexelSize);
 			
 			glBindVertexArray(VAO);
+			glBindTexture(GL_TEXTURE_2D, heightMap);
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
+			glBindVertexArray(0);
 		}
 
 	private:
@@ -66,7 +68,6 @@ class Terrain
 		{	
 			glGenTextures(1, &heightMap);
 			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, heightMap);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

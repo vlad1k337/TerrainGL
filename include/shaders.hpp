@@ -88,6 +88,13 @@ inline void setUniformVec3(unsigned int shaderProgram, char* uniform, glm::vec3 
 	GLuint location = glGetUniformLocation(shaderProgram, uniform);
 	glUniform3fv(location, 1, glm::value_ptr(vector));
 }
+inline void setUniformKernel(unsigned int shaderProgram, char* uniform, float kernel[9])
+{
+	GLuint location = glGetUniformLocation(shaderProgram, uniform);
+	glUniform1fv(location, 9, kernel);
+}
+
+
 
 
 #endif

@@ -25,7 +25,6 @@ Camera camera;
 static bool cursorBlocked = true;
 
 float lastOffsetX = 400.0f, lastOffsetY = 300.0f;
-float deltaTime = 0.0f, lastTime = 0.0f;
 
 int main(int argc, char** argv)
 {
@@ -79,11 +78,6 @@ int main(int argc, char** argv)
 
 	while(!glfwWindowShouldClose(window))
 	{
-
-	  float currentTime = static_cast<float>(glfwGetTime());
-	  deltaTime = currentTime - lastTime;
-	  lastTime  = currentTime;
-
 	  proccesInput(window);
 
 	  postProcessing->prepareProcessed();
@@ -100,11 +94,12 @@ int main(int argc, char** argv)
 	  setUniformVec3(program, "cameraPos", camera.getCameraPos());
 
       terrain->renderTerrain();
-	  postProcessing->setKernel(sharp);
 	  postProcessing->renderProcessed();
 		
-	  
-	  addWidgetsGui(terrain);
+	  startGuiRender();
+	  plotFPS();
+	  terrain->addWidgets();
+	  postProcessing->addWidgets();
 	  renderGui();
 
       glfwSwapBuffers(window);
@@ -160,19 +155,19 @@ void proccesInput(GLFWwindow* window)
     glfwSetWindowShouldClose(window, true);
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	camera.processMovement(forward, deltaTime); 
+	camera.processMovement(forward); 
 
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	  camera.processMovement(backward, deltaTime);
+	  camera.processMovement(backward);
 
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	  camera.processMovement(up, deltaTime);
+	  camera.processMovement(up);
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	  camera.processMovement(left, deltaTime);
+	  camera.processMovement(left);
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	  camera.processMovement(right, deltaTime);
+	  camera.processMovement(right);
 
   if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
   {

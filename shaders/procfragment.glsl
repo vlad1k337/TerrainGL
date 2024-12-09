@@ -9,6 +9,7 @@ const vec2 offset = vec2(1.0/800.0, 1.0/600.0);
 
 uniform float kernel[9];
 
+
 void main()
 {
 	if(TexCoords.x == 0 || TexCoords.y == 0)
@@ -53,7 +54,6 @@ void main()
 	//FragColor = mix(gradient, color, 0.1) + 0.1;
 	//FragColor = atan(Ly, Lx) - 0.2;
 	FragColor = color;
-	//FragColor = gradient;
 
 	/*
 	if(gradient.r < 0.1)

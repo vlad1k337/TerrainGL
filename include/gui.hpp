@@ -39,13 +39,16 @@ void setGuiStyle()
 	style.PopupRounding = 8.f;	
 }
 
-void addWidgetsGui(Terrain* terrain)
+void startGuiRender()
 {
-	  ImGui_ImplOpenGL3_NewFrame();
-	  ImGui_ImplGlfw_NewFrame();
-	  ImGui::NewFrame();
-		
-	  ImGui::Begin("Configuration");
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();	
+	ImGui::Begin("Configuration");
+}
+
+void plotFPS()
+{
 	  ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
 
 	  if(plotFPSPos > 59) 
@@ -53,7 +56,7 @@ void addWidgetsGui(Terrain* terrain)
 
 	  plotFPSGraph[plotFPSPos++] = ImGui::GetIO().Framerate;
 	  ImGui::PlotLines("##", plotFPSGraph, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
-
+/*
 	  static int e = 0;
 	  if(ImGui::RadioButton("Normal", &e, 0))
 	  {
@@ -69,19 +72,13 @@ void addWidgetsGui(Terrain* terrain)
 	  {
 		  glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	  }
-
-	  ImGui::ColorEdit4("Color", terrain->color);  
-
-	  ImGui::SliderFloat("Brightness", &terrain->brightness, -1.0f, 1.0f, "%.1f");
-	  ImGui::SliderFloat("Shininess", &terrain->shininess, 0.0f, 128.0f, "%1.0f");
-	  ImGui::SliderFloat("Height Scale", &terrain->heightScale, 16.0f, 128.0f, "%1.0f");
-		
-	  ImGui::End();
+*/
 	  
 }
 
 void renderGui()
 {
+	  ImGui::End();
 	  ImGui::Render();
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

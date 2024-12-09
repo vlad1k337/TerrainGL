@@ -2,6 +2,11 @@
 #define POSTPROC_H
 
 #include <glad/glad.h>
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "shaders.hpp"
 
 static float quadVertices[24] =
@@ -23,28 +28,28 @@ enum ProcessingKernel
 	identity
 };
 
-static float kernelSharp[9] =
+const float kernelSharp[9] =
 {
 	  0, -1,  0,
 	 -1,  5, -1,
 	  0, -1,  0
 };
 
-static float kernelRidge[9] =
+const float kernelRidge[9] =
 {
 	 -1, -1, -1,
 	 -1,  8, -1,
 	 -1, -1, -1
 };
 
-static float kernelBlur[9] =
+const float kernelBlur[9] =
 {
-	 1, 2, 1,
-	 2, 4, 2,
-	 1, 2, 1
+	 0.0625, 0.125, 0.0625,
+	 0.125, 0.025, 0.125,
+	 0.0625, 0.125, 0.0625
 };
 
-static float kernelIdentity[9] =
+const float kernelIdentity[9] =
 {
 	 0, 0, 0,
 	 0, 1, 0,
@@ -59,6 +64,8 @@ class PostProcess
 			initTexturedQuad();
 			initFrameBuffer();
 			initProcessingProgram(vertex, fragment);
+			glUseProgram(processProgram);
+			setUniformKernel(processProgram, "kernel", kernelSharp);
 		}
 		
 		static void checkFramebufferCompleteness()
@@ -90,23 +97,41 @@ class PostProcess
 		    glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
-		void setKernel(ProcessingKernel kernel)
+		void addWidgets()
 		{
-			glUseProgram(processProgram);
+			ImGui::Text("Post Proccesing effects:");
+			static int e = 0;
 
-			if(kernel == sharp)
+			if(ImGui::RadioButton("Sharp", &e, 0))
+			{
 				setUniformKernel(processProgram, "kernel", kernelSharp);
-			if(kernel == ridge)
+				std::cout << "Set sharp" << std::endl;
+			}
+			ImGui::SameLine();
+			if(ImGui::RadioButton("Ridge", &e, 1))
+			{
 				setUniformKernel(processProgram, "kernel", kernelRidge);
-			if(kernel == blur)
-				setUniformKernel(processProgram, "kernel", kernelBlur);
-			if(kernel == identity)
-				setUniformKernel(processProgram, "kernel", kernelIdentity);
+				std::cout << "Set sharp" << std::endl;
+			}
+			ImGui::SameLine();
 
+			if(ImGui::RadioButton("Blur", &e, 2))
+			{
+				setUniformKernel(processProgram, "kernel", kernelBlur);
+				std::cout << "Set blur" << std::endl;
+			}
+			ImGui::SameLine();
+
+			if(ImGui::RadioButton("Identity", &e, 3))
+			{
+				setUniformKernel(processProgram, "kernel", kernelIdentity);
+				std::cout << "Set identity" << std::endl;
+			}
+			
 		}
 
 
-		private:
+	private:
 		unsigned int quadVAO;
 		unsigned int quadVBO;
 

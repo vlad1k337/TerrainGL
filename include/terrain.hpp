@@ -5,10 +5,15 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "shaders.hpp"
+
 
 class Terrain
 {
@@ -52,6 +57,14 @@ class Terrain
 			glPatchParameteri(GL_PATCH_VERTICES, 4);	
 			glDrawArrays(GL_PATCHES, 0, 4*res*res);
 			glBindVertexArray(0);
+		}
+
+		void addWidgets()
+		{
+		    ImGui::ColorEdit4("Color", color);  
+		    ImGui::SliderFloat("Brightness", &brightness, -1.0f, 1.0f, "%.1f");
+		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f");
+		    ImGui::SliderFloat("Height Scale", &heightScale, 16.0f, 128.0f, "%1.0f");	
 		}
 
 	private:

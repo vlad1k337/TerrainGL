@@ -42,9 +42,9 @@ class Camera
 			cameraFront = front;
 		}
 
-		void processMovement(Direction direction, float deltaTime)
+		void processMovement(Direction direction)
 		{
-			float cameraSpeed = speed * deltaTime;
+			float cameraSpeed = speed;
 
 			if(direction == forward)
 				cameraPos += cameraFront * cameraSpeed;
@@ -94,7 +94,7 @@ class Camera
 		float pitch = 0.0f;
 		float fov = 45.0f;
 
-		const float speed = 35.0f;
+		const float speed = 2.5f;
 
 };
 

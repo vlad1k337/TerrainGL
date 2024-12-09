@@ -5,11 +5,11 @@ Simple C++/OpenGL renderer of beautiful terrains \
 ### Features
 - Terrain rendering based on heightmap
 - Dynamic Levels of Detail
-- Cool ImGui configuration panel
+- Cool ImGui UI
 
 #### Requirements
-- Linux System
-- GPU supporting OpenGL4.0+
+- Linux
+- GPU supporting OpenGL4.1
 - libglm
 
 #### To build, just run

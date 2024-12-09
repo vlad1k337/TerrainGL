@@ -24,8 +24,6 @@ or specify any other heightmap picture
 ##### Currently only supports .png heightmaps!
 
 #### Controls
-```space``` - move up \ 
-```b``` - show cursor, interact with ImGui panel \
-```n``` - hide cursor, enable camera movement
-
-![kek](https://github.com/user-attachments/assets/7bd32e78-9984-42ec-a1db-40725d6a09ad)
+```space``` - fly upward <br/>
+```b``` - show cursor, interact with ImGui panel <br/>
+```n``` - hide cursor, enable camera movement <br/>

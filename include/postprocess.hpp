@@ -99,7 +99,7 @@ class PostProcess
 
 		void addWidgets()
 		{
-			ImGui::Text("Post Proccesing effects:");
+			ImGui::Text("Post Proccesing effects");
 			static int e = 0;
 
 			if(ImGui::RadioButton("Sharp", &e, 0))

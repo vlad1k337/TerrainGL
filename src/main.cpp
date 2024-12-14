@@ -65,16 +65,15 @@ int main(int argc, char** argv)
     unsigned int program = linkShader(4, vertex, fragment, tesControl, tesEval);
 
 	Terrain* terrain;
-	if(argc > 1)
-		terrain = new Terrain(argv[1], program);
+	if(argc > 2)
+		terrain = new Terrain(program, std::atoi(argv[1]), std::atoi(argv[2]));
 	else {
-		terrain = new Terrain("assets/iceland_heightmap.png", program);
-		std::cout << "Using default height-map: assets/iceland_heightmap.png"  << std::endl;
+		terrain = new Terrain(program);
+		std::cout << "Using default map size 1024x1024"  << std::endl;
 	}
 
 	PostProcess* postProcessing = new PostProcess("shaders/procvertex.glsl", "shaders/procfragment.glsl");
 	PostProcess::checkFramebufferCompleteness();
-
 
 	while(!glfwWindowShouldClose(window))
 	{
@@ -83,7 +82,6 @@ int main(int argc, char** argv)
 	  postProcessing->prepareProcessed();
 
       glUseProgram(program);
-    
 	  model = glm::mat4(1.0f);
       view = camera.getLookAt();
 	  projection = camera.getProjection();

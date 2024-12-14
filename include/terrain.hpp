@@ -18,19 +18,20 @@
 class Terrain
 {
 	public:
-		float color[4]     = {1.0f, 1.0f, 1.0f, 1.0f};	
+		float color[4]   = {1.0f, 1.0f, 1.0f, 1.0f};	
 		float brightness = 0.0f;						// affects color whiteness
-		float shininess = 32.0f;						// affects Blinn-Phong specular lighting
+		float shininess  = 32.0f;						// affects Blinn-Phong specular lighting
 		
 		float heightScale  = 64.0f;
 		float heightOffset = 16.0f;
 
 		glm::vec2 uTexelSize;		
 		
-		Terrain(const char* path, unsigned int shaderProgram)
+		Terrain(unsigned int shaderProgram, int width = 1024, int height = 1024)
 		{
 			this->shaderProgram = shaderProgram;
-			loadHeightMap(path);
+			this->width = width;
+			this->height = height;
 			constructVBO();
 			constructVAO();
 
@@ -43,14 +44,17 @@ class Terrain
 		
 		void renderTerrain()
 		{
+			setUniformFloat(shaderProgram, "frequency", frequency);
+			setUniformFloat(shaderProgram, "amplitude", amplitude);
+			setUniformInt(shaderProgram, "octaves", octaves);
+
 		    setUniformFloat(shaderProgram, "redComponent", color[0]);
 			setUniformFloat(shaderProgram, "greenComponent", color[1]);
 			setUniformFloat(shaderProgram, "blueComponent", color[2]);
+
 			setUniformFloat(shaderProgram, "brightness", brightness);
 			setUniformFloat(shaderProgram, "shininess", shininess);
-			setUniformFloat(shaderProgram, "heightScale", heightScale);
-			setUniformFloat(shaderProgram, "heightOffset", heightOffset);
-			setUniformVec2(shaderProgram, "uTexelSize", uTexelSize);
+			
 			
 			glBindVertexArray(VAO);
 			glBindTexture(GL_TEXTURE_2D, heightMap);
@@ -61,10 +65,15 @@ class Terrain
 
 		void addWidgets()
 		{
-		    ImGui::ColorEdit4("Color", color);  
+		    ImGui::ColorEdit4("Color", color); ImGui::NewLine();	
+			ImGui::Text("Noise Function Adjustments");
+			ImGui::SliderFloat("Frequency", &frequency, 1.0f, 16.0f, "%1.0f");
+			ImGui::SliderFloat("Amplitude", &amplitude, 1.0f, 48.0f, "%1.0f");
+			ImGui::SliderInt("Octaves", &octaves, 1, 18, "%d"); ImGui::NewLine();	
+			ImGui::Text("Lighting Adjustments");
 		    ImGui::SliderFloat("Brightness", &brightness, -1.0f, 1.0f, "%.1f");
-		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f");
-		    ImGui::SliderFloat("Height Scale", &heightScale, 16.0f, 128.0f, "%1.0f");	
+		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f"); 
+			ImGui::NewLine();	
 		}
 
 	private:
@@ -76,6 +85,10 @@ class Terrain
 		const int unsigned res = 20;
 	    int width, height, nrChanels;	
 		unsigned char* heightMapData;
+
+		float frequency = 1.0;
+		float amplitude = 1.0;
+		int octaves = 6;
 
 		void loadHeightMap(const char* path)
 		{	

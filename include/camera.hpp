@@ -29,7 +29,7 @@ class Camera
 
 		glm::mat4 getProjection()
 		{
-			return glm::perspective(glm::radians(fov), 800.0f/600.0f, 0.1f, 1000.0f);
+			return glm::perspective(glm::radians(fov), 800.0f/600.0f, 0.1f, 3000.0f);
 		}
 
 		glm::vec3 getCameraPos()

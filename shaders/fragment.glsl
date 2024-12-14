@@ -38,12 +38,12 @@ vec3 calculateLight()
 	vec3 lightDir   = normalize(lightPos - FragPos);
 	vec3 viewDir = normalize(cameraPos - FragPos);
 	
-	/*
+	
 	float diff = max(dot(normalize(normal), lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
-	*/
 	
-	vec3 diffuse = gooch(normalize(normal), vec3(1.0), vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0));
+	
+	//vec3 diffuse = gooch(normalize(normal), vec3(1.0), vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0));
 
 	float ambientStrength = 0.1;
 	vec3 ambient = ambientStrength * lightColor;

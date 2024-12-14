@@ -6,15 +6,14 @@ uniform sampler2D heightMap;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
- 
-uniform float heightScale;
-uniform float heightOffset;
+
 uniform vec2 uTexelSize; 
 
-in vec2 TextureCoord[];
+uniform float frequency;
+uniform float amplitude;
+uniform int octaves;
 
-out float Height;
-out vec4 normal;
+in vec2 TextureCoord[];
 out vec3 FragPos;
  
 vec4 p00 = gl_in[0].gl_Position;
@@ -26,47 +25,115 @@ vec2 t00 = TextureCoord[0];
 vec2 t01 = TextureCoord[1];
 vec2 t10 = TextureCoord[2];
 vec2 t11 = TextureCoord[3];
- 
-vec2 getTex(float u, float v)
+
+uint hash(uint x, uint seed)
 {
-	vec2 t0 = mix(t00, t01, u);
-	vec2 t1 = mix(t10, t11, u);
-	vec2 t  = mix(t0, t1, v);
-	return t;
+    const uint m = 0x5bd1e995U;
+    uint hash = seed;
+    uint k = x;
+    k *= m;
+    k ^= k >> 24;
+    k *= m;
+    hash *= m;
+    hash ^= k;
+    hash ^= hash >> 13;
+    hash *= m;
+    hash ^= hash >> 15;
+    return hash;
 }
 
-vec4 getPos(float u, float v)
+uint hash(uvec2 x, uint seed)
 {
-	vec4 n0 = mix(p00, p01, u);
-	vec4 n1 = mix(p10, p11, u);
-	vec4 n  = mix(n0, n1, v);
- 
-	return vec4(n.x, texture(heightMap, getTex(u, v)).r * heightScale - heightOffset, n.zw);
+    const uint m = 0x5bd1e995U;
+    uint hash = seed;
+    uint k = x.x; 
+    k *= m;
+    k ^= k >> 24;
+    k *= m;
+    hash *= m;
+    hash ^= k;
+    k = x.y; 
+    k *= m;
+    k ^= k >> 24;
+    k *= m;
+    hash *= m;
+    hash ^= k;
+    hash ^= hash >> 13;
+    hash *= m;
+    hash ^= hash >> 15;
+    return hash;
 }
 
-float getSample(float u, float v)
+vec2 gradientDirection(uint hash)
 {
-	return texture(heightMap, vec2(u, v)).r * heightScale * 2.0f - 1.0f;  
+    switch (int(hash) & 3) 
+    { 
+    case 0:
+        return vec2(1.0, 1.0);
+    case 1:
+        return vec2(-1.0, 1.0);
+    case 2:
+        return vec2(1.0, -1.0);
+    case 3:
+        return vec2(-1.0, -1.0);
+     
+    }
 }
- 
+
+float fade(float t)
+{
+	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+float noise(vec2 uv, uint seed)
+{
+	vec2 floorCorner = floor(uv);
+	uvec2 boxCorner = uvec2(floorCorner);
+	vec2 inCoord = fract(uv);
+
+	float u = fade(inCoord.x);
+	float v = fade(inCoord.y);
+
+	float a = dot(gradientDirection(hash(boxCorner, seed)), inCoord);	
+	float b = dot(gradientDirection(hash(boxCorner + uvec2(1.0, 0.0), seed)), inCoord - uvec2(1.0, 0.0));	
+	float c = dot(gradientDirection(hash(boxCorner + uvec2(0.0, 1.0), seed)), inCoord - uvec2(0.0, 1.0));	
+	float d = dot(gradientDirection(hash(boxCorner + uvec2(1.0, 1.0), seed)), inCoord - uvec2(1.0, 1.0));	
+
+	float x1 = mix(a, b, u);
+	float x2 = mix(c, d, u);
+
+	return mix(x1, x2, v);
+}
+
+float summedNoise(vec2 uv, uint seed, float frequency, float amplitude, uint octaves)
+{
+	float total = 0.0;
+	for(uint i = 0; i < octaves; ++i)
+	{
+		total += noise(uv * frequency, seed) * amplitude;
+		frequency *= 2.0;
+		amplitude *= 0.5;
+	}
+
+	return total;
+}
+
+
 void main()
 {
 	float u = gl_TessCoord.x;
-    float v = gl_TessCoord.y;
+	float v = gl_TessCoord.y;
 
-	vec2 TexCoord = getTex(u, v);
+	vec4 p0 = mix(p00, p01, u);
+	vec4 p1 = mix(p10, p11, u);
+	vec4 p  = mix(p0, p1, v);
 
-	// vertex normals, just for a case
+	vec2 t0 = mix(t00, t01, u);
+	vec2 t1 = mix(t10, t11, u);
+	vec2 t  = mix(t0, t1, v);
 
-	/*float left  = texture(heightMap, TexCoord + vec2(-uTexelSize.x, 0.0)).r * heightScale * 2.0 - 1.0;
-	float right = texture(heightMap, TexCoord + vec2( uTexelSize.x, 0.0)).r * heightScale * 2.0 - 1.0;
-	float up    = texture(heightMap, TexCoord + vec2(0.0,  uTexelSize.y)).r * heightScale * 2.0 - 1.0;
-	float down  = texture(heightMap, TexCoord + vec2(0.0, -uTexelSize.y)).r * heightScale * 2.0 - 1.0;
-	normal = vec4(normalize(vec3(down - up, 2.0, left - right)), 1.0);*/
-
-
-    vec4 p = getPos(u, v);
-	Height = p.y;
+	p.y = summedNoise(t, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
+	
 
 	gl_Position = projection * view * model * p;
 	FragPos = vec3(model * p);

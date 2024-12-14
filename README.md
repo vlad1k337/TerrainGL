@@ -1,5 +1,5 @@
 # Terrain Renderer
-Simple C++/OpenGL renderer of beautiful terrains \
+Simple C++/OpenGL renderer of beautiful terrains 
 
 ### Features
 - Procedural terrain generation using Improved Perlin Noise function

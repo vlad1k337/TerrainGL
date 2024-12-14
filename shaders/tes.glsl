@@ -7,7 +7,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform vec2 uTexelSize; 
+uniform float time;
 
 uniform float frequency;
 uniform float amplitude;

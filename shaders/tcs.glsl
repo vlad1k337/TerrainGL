@@ -17,8 +17,8 @@ void main()
     if(gl_InvocationID == 0)
     {
 		// Adjust TESS_LEVELs to not burn your PC
-        const int MIN_TESS_LEVEL = 32;
-        const int MAX_TESS_LEVEL = 128;
+        const int MIN_TESS_LEVEL = 16;
+        const int MAX_TESS_LEVEL = 72;
         const float MIN_DISTANCE = 20;
         const float MAX_DISTANCE = 2048;
 

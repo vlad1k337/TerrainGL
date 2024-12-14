@@ -22,11 +22,6 @@ class Terrain
 		float brightness = 0.0f;						// affects color whiteness
 		float shininess  = 32.0f;						// affects Blinn-Phong specular lighting
 		
-		float heightScale  = 64.0f;
-		float heightOffset = 16.0f;
-
-		glm::vec2 uTexelSize;		
-		
 		Terrain(unsigned int shaderProgram, int width = 1024, int height = 1024)
 		{
 			this->shaderProgram = shaderProgram;
@@ -55,6 +50,7 @@ class Terrain
 			setUniformFloat(shaderProgram, "brightness", brightness);
 			setUniformFloat(shaderProgram, "shininess", shininess);
 			
+			setUniformBool(shaderProgram, "gooch", gooch);
 			
 			glBindVertexArray(VAO);
 			glBindTexture(GL_TEXTURE_2D, heightMap);
@@ -65,14 +61,29 @@ class Terrain
 
 		void addWidgets()
 		{
-		    ImGui::ColorEdit4("Color", color); ImGui::NewLine();	
+		    ImGui::ColorEdit4("Color", color); 
+			ImGui::NewLine();	
+
 			ImGui::Text("Noise Function Adjustments");
 			ImGui::SliderFloat("Frequency", &frequency, 1.0f, 16.0f, "%1.0f");
 			ImGui::SliderFloat("Amplitude", &amplitude, 1.0f, 48.0f, "%1.0f");
-			ImGui::SliderInt("Octaves", &octaves, 1, 18, "%d"); ImGui::NewLine();	
+			ImGui::SliderInt("Octaves", &octaves, 1, 18, "%d");
+			ImGui::NewLine();	
+			
 			ImGui::Text("Lighting Adjustments");
 		    ImGui::SliderFloat("Brightness", &brightness, -1.0f, 1.0f, "%.1f");
-		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f"); 
+		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f");
+
+			static int e = 0;
+			if(ImGui::RadioButton("Blinn-Phong", &e, 0))
+			{
+				gooch = false;
+			}
+			ImGui::SameLine();	
+			if(ImGui::RadioButton("Gooch", &e, 1))
+			{
+				gooch = true;
+			}
 			ImGui::NewLine();	
 		}
 
@@ -90,6 +101,8 @@ class Terrain
 		float amplitude = 1.0;
 		int octaves = 6;
 
+		bool gooch = false;
+
 		void loadHeightMap(const char* path)
 		{	
 			glGenTextures(1, &heightMap);
@@ -103,7 +116,6 @@ class Terrain
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			
 			heightMapData = stbi_load(path, &width, &height, &nrChanels, STBI_rgb_alpha);
-			uTexelSize = glm::vec2(1.0f/width, 1.0f/height);
 			if(!heightMapData)
 			{
 				

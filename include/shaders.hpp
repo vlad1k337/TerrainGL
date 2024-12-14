@@ -59,6 +59,13 @@ unsigned int linkShader(unsigned int shaderCount, ...)
 	return shaderProgram;
 }
 
+inline void setUniformBool(unsigned int shaderProgram, char* uniform, bool value)
+{
+	GLuint location = glGetUniformLocation(shaderProgram, uniform);
+	glUniform1i(location, (int)value);
+}
+
+
 inline void setUniformMatrix(unsigned int shaderProgram, char* uniform, glm::mat4 matrix)
 {
 	GLuint location = glGetUniformLocation(shaderProgram, uniform);

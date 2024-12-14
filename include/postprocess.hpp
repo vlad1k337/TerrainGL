@@ -100,7 +100,7 @@ class PostProcess
 		void addWidgets()
 		{
 			ImGui::Text("Post Proccesing effects");
-			static int e = 0;
+			static int e = 3;
 
 			if(ImGui::RadioButton("Sharp", &e, 0))
 			{

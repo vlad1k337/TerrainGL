@@ -54,11 +54,10 @@ void main()
 	//FragColor = mix(gradient, color, 0.1) + 0.1;
 	//FragColor = atan(Ly, Lx) - 0.2;
 	FragColor = color;
-
-	/*
+/*
 	if(gradient.r < 0.1)
 		FragColor = color;
 	else
 		FragColor = vec4(0.0);
-	*/
+*/
 }  

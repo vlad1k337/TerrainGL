@@ -32,6 +32,7 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
     
     GLFWwindow* window = glfwCreateWindow(800, 600, " ", NULL, NULL);
     if(window == NULL)
@@ -54,8 +55,8 @@ int main(int argc, char** argv)
         std::cout << "Failed to initialize GLAD\n";
 		return -1;
     }
-
     glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE); 
 	initGui(window);
 
     unsigned int vertex     = compileShader("shaders/vertex.glsl", GL_VERTEX_SHADER);
@@ -75,6 +76,7 @@ int main(int argc, char** argv)
 	PostProcess* postProcessing = new PostProcess("shaders/procvertex.glsl", "shaders/procfragment.glsl");
 	PostProcess::checkFramebufferCompleteness();
 
+ 
 	while(!glfwWindowShouldClose(window))
 	{
 	  proccesInput(window);
@@ -90,6 +92,7 @@ int main(int argc, char** argv)
       setUniformMatrix(program, "view", view);
       setUniformMatrix(program, "projection", projection);
 	  setUniformVec3(program, "cameraPos", camera.getCameraPos());
+	  setUniformFloat(program, "time", glfwGetTime());
 
       terrain->renderTerrain();
 	  postProcessing->renderProcessed();

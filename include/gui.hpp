@@ -7,14 +7,12 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "terrain.hpp"
-
 float plotFPSGraph[60] = {0.0};
 int plotFPSPos = 0;
 
 void initGui(GLFWwindow* window);
 void setGuiStyle();
-void renderGui(Terrain* terrain);
+void renderGui();
 void cleanGui();
 
 void initGui(GLFWwindow* window)

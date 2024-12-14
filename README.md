@@ -18,10 +18,9 @@ make
 ```
 #### Then to run:
 ``` Shell
-./main assets/heightmap.png
+./main <width> <length>
 ```
-or specify any other heightmap picture
-##### Currently only supports .png heightmaps!
+default map size is 1024x1024
 
 #### Controls
 ```space``` - fly upward <br/>

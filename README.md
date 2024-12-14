@@ -1,9 +1,9 @@
 # Terrain Renderer
 Simple C++/OpenGL renderer of beautiful terrains \
-![](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGpuNDV0MXB5dGFsdG9iejVoN3hqdm9la3B4MWthMGJ3OThuYXkyOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fOxiqg4ICvaIlt1Qtv/giphy.gif)
 
 ### Features
-- Terrain rendering based on heightmap
+- Procedural terrain generation using Improved Perlin Noise
+- Post-processing effects: blur, sharp, edge outlining
 - Dynamic Levels of Detail
 - Cool ImGui UI
 
@@ -27,3 +27,6 @@ or specify any other heightmap picture
 ```space``` - fly upward <br/>
 ```b``` - show cursor, interact with ImGui panel <br/>
 ```n``` - hide cursor, enable camera movement <br/>
+
+![kamni1](https://i.imgur.com/DvgsKPk.jpeg)
+![kamni2](https://i.imgur.com/P65hMA5.png)

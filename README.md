@@ -2,10 +2,10 @@
 Simple C++/OpenGL renderer of beautiful terrains \
 
 ### Features
-- Procedural terrain generation using Improved Perlin Noise
+- Procedural terrain generation using Improved Perlin Noise function
 - Post-processing effects: blur, sharp, edge outlining
 - Dynamic Levels of Detail
-- Cool ImGui UI
+- Run-time configuration with ImGui widgets
 
 #### Requirements
 - Linux

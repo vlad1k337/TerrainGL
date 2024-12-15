@@ -15,6 +15,7 @@ uniform int octaves;
 
 in vec2 TextureCoord[];
 out vec3 FragPos;
+out vec3 normal;
  
 vec4 p00 = gl_in[0].gl_Position;
 vec4 p01 = gl_in[1].gl_Position;
@@ -118,24 +119,53 @@ float summedNoise(vec2 uv, uint seed, float frequency, float amplitude, uint oct
 	return total;
 }
 
+vec4 getPos(float u, float v)
+{
+	vec4 p0 = mix(p00, p01, u);
+	vec4 p1 = mix(p10, p11, u);
+	return mix(p0, p1, v);
+}
+
+vec2 getTex(float u, float v)
+{	
+	vec2 t0 = mix(t00, t01, u);
+	vec2 t1 = mix(t10, t11, u);
+	return mix(t0, t1, v);
+}
 
 void main()
 {
 	float u = gl_TessCoord.x;
 	float v = gl_TessCoord.y;
 
-	vec4 p0 = mix(p00, p01, u);
-	vec4 p1 = mix(p10, p11, u);
-	vec4 p  = mix(p0, p1, v);
-
-	vec2 t0 = mix(t00, t01, u);
-	vec2 t1 = mix(t10, t11, u);
-	vec2 t  = mix(t0, t1, v);
+	vec4 p  = getPos(u, v);
+	vec2 t  = getTex(u, v);
 
 	p.y = summedNoise(t, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-	
 
+	/*
+	vec4 mdx = getPos(u - 0.01, v);
+	vec4 pdx = getPos(u + 0.01, v);
+	vec4 mdy = getPos(u, v - 0.01);
+	vec4 pdy = getPos(u, v + 0.01);
+
+	vec2 mdxTex = getTex(u - 0.01, v);
+	vec2 pdxTex = getTex(u + 0.01, v);
+	vec2 mdyTex = getTex(u, v - 0.01);
+	vec2 pdyTex = getTex(u, v + 0.01);
+
+	float mdxNoise = summedNoise(mdxTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
+	float pdxNoise = summedNoise(pdxTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
+	float mdyNoise = summedNoise(mdyTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
+	float pdyNoise = summedNoise(pdyTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
+
+	vec3 normalY = vec3(mdy.x, mdyNoise, mdy.z) - vec3(pdy.x, pdyNoise, pdy.z);
+	vec3 normalX = vec3(mdx.x, mdxNoise, mdx.z) - vec3(pdx.x, pdxNoise, pdx.z);
+
+	normal = normalize(cross(normalY, normalX));
+	*/
 	gl_Position = projection * view * model * p;
+
 	FragPos = vec3(model * p);
 
 }

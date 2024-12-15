@@ -10,15 +10,14 @@ out vec2 TextureCoord[];
 
 void main()
 {
-	
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     TextureCoord[gl_InvocationID] = TexCoord[gl_InvocationID];
 
     if(gl_InvocationID == 0)
     {
 		// Adjust TESS_LEVELs to not burn your PC
-        const int MIN_TESS_LEVEL = 16;
-        const int MAX_TESS_LEVEL = 72;
+        const int MIN_TESS_LEVEL = 32;
+        const int MAX_TESS_LEVEL = 128;
         const float MIN_DISTANCE = 20;
         const float MAX_DISTANCE = 2048;
 

@@ -17,8 +17,6 @@ in vec3 FragPos;
 
 out vec4 FragColor;
 
-// just in case i would need to debug normals. again.
-vec3 normal;
 
 vec3 goochDiffuse(vec3 normal, vec3 objectColor, vec3 cool, vec3 warm)
 {
@@ -32,10 +30,10 @@ vec3 calculateLight()
 {
 	vec3 x = dFdx(FragPos);
 	vec3 y = dFdy(FragPos);
-	normal = inverse(mat3(model)) * normalize(cross(x, y));
+	vec3 normal = inverse(mat3(model)) * normalize(cross(x, y));
 
 	vec3 lightColor = vec3(redComponent, greenComponent, blueComponent) + brightness;
-	vec3 lightPos   = vec3(0.0, 200.0, 0.0);
+	vec3 lightPos   = vec3(0.0, 150.0, 0.0);
 
 	vec3 lightDir   = normalize(lightPos - FragPos);
 	vec3 viewDir = normalize(cameraPos - FragPos);
@@ -64,8 +62,5 @@ vec3 calculateLight()
 void main()
 {	
 	vec3 surfaceColor = calculateLight();
-	surfaceColor = pow(surfaceColor, vec3(1.0/2.2));
 	FragColor = vec4(surfaceColor, 1.0); 
-	
-	//FragColor = vec4(normal.xyz, 1.0); 
 }

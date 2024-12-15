@@ -8,7 +8,7 @@ uniform sampler2D screenTexture;
 const vec2 offset = vec2(1.0/800.0, 1.0/600.0);
 
 uniform float kernel[9];
-
+uniform bool gammaCorrection;
 
 void main()
 {
@@ -50,14 +50,10 @@ void main()
 	vec4 Ly = -0.5*downY + 0.5*upY;
 
 	vec4 gradient = sqrt(Lx*Lx + Ly*Ly);
+	FragColor.rgb = FragColor.rgb / (FragColor.rgb + vec3(1.0));
 
-	//FragColor = mix(gradient, color, 0.1) + 0.1;
-	//FragColor = atan(Ly, Lx) - 0.2;
-	FragColor = color;
-/*
-	if(gradient.r < 0.1)
-		FragColor = color;
+	if(gammaCorrection == true)
+		FragColor.rgb = pow(color.rgb, vec3(1.0/2.2));
 	else
-		FragColor = vec4(0.0);
-*/
+		FragColor = color;	
 }  

@@ -55,8 +55,7 @@ int main(int argc, char** argv)
         std::cout << "Failed to initialize GLAD\n";
 		return -1;
     }
-    glEnable(GL_DEPTH_TEST);
-	glEnable(GL_MULTISAMPLE); 
+    glEnable(GL_DEPTH_TEST | GL_MULTISAMPLE);
 	initGui(window);
 
     unsigned int vertex     = compileShader("shaders/vertex.glsl", GL_VERTEX_SHADER);

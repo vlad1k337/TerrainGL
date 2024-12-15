@@ -34,3 +34,7 @@ $(IMGUI_BUILDIR):
 
 clean:
 	rm -rf $(TARGET) $(BUILDIR)
+
+rebuild:
+	rm -rf $(OBJS)
+	make

@@ -65,7 +65,7 @@ class PostProcess
 			initFrameBuffer();
 			initProcessingProgram(vertex, fragment);
 			glUseProgram(processProgram);
-			setUniformKernel(processProgram, "kernel", kernelSharp);
+			setUniformKernel(processProgram, "kernel", kernelIdentity);
 		}
 		
 		static void checkFramebufferCompleteness()
@@ -91,7 +91,9 @@ class PostProcess
 		    glClear(GL_COLOR_BUFFER_BIT);
 
 		    glUseProgram(processProgram);
-		    glBindVertexArray(quadVAO);
+			setUniformBool(processProgram, "gammaCorrection", gammaCorrection);
+		    
+			glBindVertexArray(quadVAO);
 		    glDisable(GL_DEPTH_TEST);
 		    glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
 		    glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -127,7 +129,8 @@ class PostProcess
 				setUniformKernel(processProgram, "kernel", kernelIdentity);
 				std::cout << "Set identity" << std::endl;
 			}
-			
+
+			ImGui::Checkbox("Gamma Correction", &gammaCorrection);	
 		}
 
 
@@ -140,6 +143,8 @@ class PostProcess
 		unsigned int Renderbuffer;
 
 		unsigned int processProgram;
+
+		bool gammaCorrection;
 
 		void initTexturedQuad()
 		{
@@ -164,7 +169,8 @@ class PostProcess
 			
 			glGenTextures(1, &FramebufferTexture);
 			glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

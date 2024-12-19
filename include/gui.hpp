@@ -54,24 +54,6 @@ void plotFPS()
 
 	  plotFPSGraph[plotFPSPos++] = ImGui::GetIO().Framerate;
 	  ImGui::PlotLines("##", plotFPSGraph, 60, 0, NULL, 0.0f, 60.0f, ImVec2(0.0f, 30.0f));
-/*
-	  static int e = 0;
-	  if(ImGui::RadioButton("Normal", &e, 0))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	  }
-	  ImGui::SameLine();
-	  if(ImGui::RadioButton("Wireframe", &e, 1))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	  }
-	  ImGui::SameLine();
-	  if(ImGui::RadioButton("Points", &e, 2))
-	  {
-		  glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	  }
-*/
-	  
 }
 
 void renderGui()

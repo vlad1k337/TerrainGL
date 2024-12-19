@@ -91,8 +91,6 @@ class PostProcess
 		    glClear(GL_COLOR_BUFFER_BIT);
 
 		    glUseProgram(processProgram);
-			setUniformBool(processProgram, "gammaCorrection", gammaCorrection);
-		    
 			glBindVertexArray(quadVAO);
 		    glDisable(GL_DEPTH_TEST);
 		    glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
@@ -130,7 +128,6 @@ class PostProcess
 				std::cout << "Set identity" << std::endl;
 			}
 
-			ImGui::Checkbox("Gamma Correction", &gammaCorrection);	
 		}
 
 
@@ -143,8 +140,6 @@ class PostProcess
 		unsigned int Renderbuffer;
 
 		unsigned int processProgram;
-
-		bool gammaCorrection;
 
 		void initTexturedQuad()
 		{
@@ -169,7 +164,7 @@ class PostProcess
 			
 			glGenTextures(1, &FramebufferTexture);
 			glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -52,8 +52,5 @@ void main()
 	vec4 gradient = sqrt(Lx*Lx + Ly*Ly);
 	FragColor.rgb = FragColor.rgb / (FragColor.rgb + vec3(1.0));
 
-	if(gammaCorrection == true)
-		FragColor.rgb = pow(color.rgb, vec3(1.0/2.2));
-	else
-		FragColor = color;	
+	FragColor = color;	
 }  

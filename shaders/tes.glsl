@@ -86,7 +86,12 @@ float fade(float t)
 	return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-float noise(vec2 uv, uint seed)
+float dfade(float t)
+{
+	return 30.0 * t * t * (t * (t - 2.0) + 1.0);
+}
+
+vec3 noise(vec2 uv, uint seed)
 {
 	vec2 floorCorner = floor(uv);
 	uvec2 boxCorner = uvec2(floorCorner);
@@ -95,27 +100,45 @@ float noise(vec2 uv, uint seed)
 	float u = fade(inCoord.x);
 	float v = fade(inCoord.y);
 
-	float a = dot(gradientDirection(hash(boxCorner, seed)), inCoord);	
-	float b = dot(gradientDirection(hash(boxCorner + uvec2(1.0, 0.0), seed)), inCoord - uvec2(1.0, 0.0));	
-	float c = dot(gradientDirection(hash(boxCorner + uvec2(0.0, 1.0), seed)), inCoord - uvec2(0.0, 1.0));	
-	float d = dot(gradientDirection(hash(boxCorner + uvec2(1.0, 1.0), seed)), inCoord - uvec2(1.0, 1.0));	
+	vec2 ga = gradientDirection(hash(boxCorner, seed));
+	vec2 gb = gradientDirection(hash(boxCorner + uvec2(1.0, 0.0), seed));
+	vec2 gc = gradientDirection(hash(boxCorner + uvec2(0.0, 1.0), seed));
+	vec2 gd = gradientDirection(hash(boxCorner + uvec2(1.0, 1.0), seed));
+
+	float a = dot(ga, inCoord);	
+	float b = dot(gb, inCoord - uvec2(1.0, 0.0));	
+	float c = dot(gc, inCoord - uvec2(0.0, 1.0));	
+	float d = dot(gd, inCoord - uvec2(1.0, 1.0));	
 
 	float x1 = mix(a, b, u);
 	float x2 = mix(c, d, u);
 
-	return mix(x1, x2, v);
+	vec2 fu = vec2(fade(inCoord.x), fade(inCoord.y));
+	vec2 du = vec2(dfade(inCoord.x), dfade(inCoord.y));
+	
+	float dx = (mix(c, d, fu.x) - mix(a, b, fu.x)) * du.y;
+	float dy = mix((b - a) * du.x, (d - c) * du.x, fu.y);
+
+	return vec3(mix(x1, x2, v),
+		ga + fu.x * (gb - ga) + fu.y * (gc - ga) + fu.x * fu.y * (ga - gb - gc + gd) +  
+                 du * (fu.yx*(a - b - c + d) + vec2(b, c) - a));
 }
 
 float summedNoise(vec2 uv, uint seed, float frequency, float amplitude, uint octaves)
 {
+	vec2 d = vec2(0.0, 0.0);
 	float total = 0.0;
 	for(uint i = 0; i < octaves; ++i)
 	{
-		total += noise(uv * frequency, seed) * amplitude;
+		vec3 n = noise(uv * frequency, seed) * amplitude;
+		d += vec2(n.y, n.z);
+		total += n.x;
+
 		frequency *= 2.0;
 		amplitude *= 0.5;
 	}
-
+	// analytical normals doesn't work and i have no idea how to fix them..
+	normal = vec3(d.x, 1.0, d.y);
 	return total;
 }
 
@@ -142,30 +165,8 @@ void main()
 	vec2 t  = getTex(u, v);
 
 	p.y = summedNoise(t, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-
-	/*
-	vec4 mdx = getPos(u - 0.01, v);
-	vec4 pdx = getPos(u + 0.01, v);
-	vec4 mdy = getPos(u, v - 0.01);
-	vec4 pdy = getPos(u, v + 0.01);
-
-	vec2 mdxTex = getTex(u - 0.01, v);
-	vec2 pdxTex = getTex(u + 0.01, v);
-	vec2 mdyTex = getTex(u, v - 0.01);
-	vec2 pdyTex = getTex(u, v + 0.01);
-
-	float mdxNoise = summedNoise(mdxTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-	float pdxNoise = summedNoise(pdxTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-	float mdyNoise = summedNoise(mdyTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-	float pdyNoise = summedNoise(pdyTex, 0xDEFECA7E, frequency, amplitude, octaves) * 20.0;
-
-	vec3 normalY = vec3(mdy.x, mdyNoise, mdy.z) - vec3(pdy.x, pdyNoise, pdy.z);
-	vec3 normalX = vec3(mdx.x, mdxNoise, mdx.z) - vec3(pdx.x, pdxNoise, pdx.z);
-
-	normal = normalize(cross(normalY, normalX));
-	*/
+	
 	gl_Position = projection * view * model * p;
 
 	FragPos = vec3(model * p);
-
 }

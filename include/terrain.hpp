@@ -48,8 +48,11 @@ class Terrain
 			setUniformFloat(shaderProgram, "blueComponent", color[2]);
 
 			setUniformFloat(shaderProgram, "brightness", brightness);
-			setUniformFloat(shaderProgram, "shininess", shininess);
-			
+			setUniformFloat(shaderProgram, "metallic", metallic);
+			setUniformFloat(shaderProgram, "roughness", roughness);
+			setUniformFloat(shaderProgram, "ambientOcclusion", ambientOcclusion);
+
+			setUniformBool(shaderProgram, "gamma", gammaCorrection);
 			setUniformBool(shaderProgram, "gooch", gooch);
 			
 			glBindVertexArray(VAO);
@@ -61,7 +64,7 @@ class Terrain
 
 		void addWidgets()
 		{
-		    ImGui::ColorEdit4("Color", color); 
+		    ImGui::ColorEdit4("Albedo", color); 
 			ImGui::NewLine();	
 
 			ImGui::Text("Noise Function Adjustments");
@@ -72,10 +75,12 @@ class Terrain
 			
 			ImGui::Text("Lighting Adjustments");
 		    ImGui::SliderFloat("Brightness", &brightness, -1.0f, 1.0f, "%.1f");
-		    ImGui::SliderFloat("Shininess", &shininess, 0.0f, 128.0f, "%1.0f");
+		    ImGui::SliderFloat("Ambient", &ambientOcclusion, -1.0f, 1.0f, "%.1f");
+		    ImGui::SliderFloat("Roughness", &roughness, 0.0f, 1.0f, "%.1f");
+			ImGui::SliderFloat("Metallic", &metallic, 0.0f, 1.0f, "%.1f");
 
 			static int e = 0;
-			if(ImGui::RadioButton("Blinn-Phong", &e, 0))
+			if(ImGui::RadioButton("PBR", &e, 0))
 			{
 				gooch = false;
 			}
@@ -84,6 +89,7 @@ class Terrain
 			{
 				gooch = true;
 			}
+			ImGui::Checkbox("Gamma Correction", &gammaCorrection);	
 			ImGui::NewLine();	
 		}
 
@@ -101,6 +107,11 @@ class Terrain
 		float amplitude = 1.0;
 		int octaves = 6;
 
+		float metallic = 0.0;
+		float roughness = 0.0;
+		float ambientOcclusion = 0.1;
+
+		bool gammaCorrection = true;
 		bool gooch = false;
 
 		void loadHeightMap(const char* path)

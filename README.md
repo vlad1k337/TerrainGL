@@ -9,8 +9,8 @@ Simple C++/OpenGL renderer of beautiful terrains
 
 #### Requirements
 - Linux
-- GPU supporting OpenGL4.1
-- libglm
+- GPU supporting OpenGL 4.1
+- libglm, GLFW3
 
 #### To build, just run
 ``` Shell

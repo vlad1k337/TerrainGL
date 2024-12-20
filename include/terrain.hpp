@@ -70,7 +70,7 @@ class Terrain
 			ImGui::Text("Noise Function Adjustments");
 			ImGui::SliderFloat("Frequency", &frequency, 1.0f, 16.0f, "%1.0f");
 			ImGui::SliderFloat("Amplitude", &amplitude, 1.0f, 48.0f, "%1.0f");
-			ImGui::SliderInt("Octaves", &octaves, 1, 18, "%d");
+			ImGui::SliderInt("Octaves", &octaves, 1, 16, "%d");
 			ImGui::NewLine();	
 			
 			ImGui::Text("Lighting Adjustments");
@@ -108,7 +108,7 @@ class Terrain
 		int octaves = 6;
 
 		float metallic = 0.0;
-		float roughness = 0.0;
+		float roughness = 0.2;
 		float ambientOcclusion = 0.1;
 
 		bool gammaCorrection = true;

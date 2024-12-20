@@ -21,6 +21,8 @@ glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
 
+PostProcess postProcessing;
+
 Camera camera;
 static bool cursorBlocked = true;
 
@@ -33,7 +35,11 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-    
+
+#ifdef __APPLE__
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
     GLFWwindow* window = glfwCreateWindow(800, 600, " ", NULL, NULL);
     if(window == NULL)
     {
@@ -47,7 +53,6 @@ int main(int argc, char** argv)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);  
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -55,7 +60,8 @@ int main(int argc, char** argv)
         std::cout << "Failed to initialize GLAD\n";
 		return -1;
     }
-    glEnable(GL_DEPTH_TEST | GL_MULTISAMPLE);
+	glEnable(GL_DEPTH_TEST | GL_MULTISAMPLE);
+	postProcessing = PostProcess("shaders/procvertex.glsl", "shaders/procfragment.glsl");
 	initGui(window);
 
     unsigned int vertex     = compileShader("shaders/vertex.glsl", GL_VERTEX_SHADER);
@@ -69,18 +75,18 @@ int main(int argc, char** argv)
 		terrain = new Terrain(program, std::atoi(argv[1]), std::atoi(argv[2]));
 	else {
 		terrain = new Terrain(program);
-		std::cout << "Using default map size 1024x1024"  << std::endl;
+		std::cout << "Using default map of size 1024x1024"  << std::endl;
 	}
-
-	PostProcess* postProcessing = new PostProcess("shaders/procvertex.glsl", "shaders/procfragment.glsl");
-	PostProcess::checkFramebufferCompleteness();
 
  
 	while(!glfwWindowShouldClose(window))
 	{
 	  proccesInput(window);
 
-	  postProcessing->prepareProcessed();
+	  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	  postProcessing.prepareProcessed();
 
       glUseProgram(program);
 	  model = glm::mat4(1.0f);
@@ -91,15 +97,14 @@ int main(int argc, char** argv)
       setUniformMatrix(program, "view", view);
       setUniformMatrix(program, "projection", projection);
 	  setUniformVec3(program, "cameraPos", camera.getCameraPos());
-	  setUniformFloat(program, "time", glfwGetTime());
 
       terrain->renderTerrain();
-	  postProcessing->renderProcessed();
+	  postProcessing.renderProcessed();
 		
 	  startGuiRender();
 	  plotFPS();
 	  terrain->addWidgets();
-	  postProcessing->addWidgets();
+	  postProcessing.addWidgets();
 	  renderGui();
 
       glfwSwapBuffers(window);
@@ -107,24 +112,17 @@ int main(int argc, char** argv)
     }
 
 	delete terrain;
-	delete postProcessing;
-
+	
 	cleanGui();
-    glfwTerminate(); 
+	glfwTerminate();
     return 0;
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	camera.setCameraFront(glm::vec3(0.0, 0.0, -1.0));
-	lastOffsetX = width/2;
-	lastOffsetY = height/2;
-	glfwSetCursorPos(window, width/2, height/2);	
+	postProcessing.framebuffersResize(width, height);
 }
-
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {

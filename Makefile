@@ -1,6 +1,6 @@
-CFLAGS    = -Wall -g 
+CFLAGS    = -std=c++17 -Wall -g $(shell pkg-config --cflags glfw3 glm)
 INCLUDES  = -Iinclude/ -Iinclude/imgui
-LIBS   	  = -lGL `pkg-config --static --libs glfw3`
+LIBS   	  = $(shell pkg-config --libs glfw3 glm)
 TARGET    = main
 
 SRCDIR    = src

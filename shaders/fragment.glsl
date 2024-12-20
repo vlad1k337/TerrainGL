@@ -111,16 +111,13 @@ vec3 calculateLight()
 	float denom = 4.0 * max(dot(normal, view), 0.0) * max(dot(normal, lightDir), 0.0f);
 
 	vec3 specular = num / denom;
+	vec3 ambient = vec3(0.03) * albedo * ambientOcclusion;  
 
 	if(gooch)
-		albedo = goochDiffuse(normalize(normal), vec3(1.0), vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0));
+		albedo = goochDiffuse(normalize(normal), vec3(1.0), vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0));
 
 	vec3 irradiance = (refractedRatio * albedo / PI + specular) * radiance * incAngle;
-	vec3 ambient = vec3(0.03) * albedo * ambientOcclusion;  
-	
-
 	return ambient + irradiance;
-	
 }
 
 void main()

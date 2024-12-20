@@ -9,7 +9,7 @@
 
 #include "shaders.hpp"
 
-static float quadVertices[24] =
+static float QuadVertices[24] =
 {               
 	-1.0f,  1.0f,  0.0f, 1.0f,
 	-1.0f, -1.0f,  0.0f, 0.0f,
@@ -28,28 +28,28 @@ enum ProcessingKernel
 	identity
 };
 
-const float kernelSharp[9] =
+const float KernelSharp[9] =
 {
 	  0, -1,  0,
 	 -1,  5, -1,
 	  0, -1,  0
 };
 
-const float kernelRidge[9] =
+const float KernelRidge[9] =
 {
 	 -1, -1, -1,
 	 -1,  8, -1,
 	 -1, -1, -1
 };
 
-const float kernelBlur[9] =
+const float KernelBlur[9] =
 {
 	 0.0625, 0.125, 0.0625,
 	 0.125, 0.025, 0.125,
 	 0.0625, 0.125, 0.0625
 };
 
-const float kernelIdentity[9] =
+const float KernelIdentity[9] =
 {
 	 0, 0, 0,
 	 0, 1, 0,
@@ -59,13 +59,26 @@ const float kernelIdentity[9] =
 class PostProcess 
 {
 	public:
+		PostProcess()
+		{
+
+		}
+
 		PostProcess(const char* vertex, const char* fragment)
 		{
+			WindowWidth  = 800;
+			WindowHeight = 600;
 			initTexturedQuad();
 			initFrameBuffer();
 			initProcessingProgram(vertex, fragment);
-			glUseProgram(processProgram);
-			setUniformKernel(processProgram, "kernel", kernelIdentity);
+			glUseProgram(ProcessProgram);
+			setUniformInt(ProcessProgram, "screenTexture", 0);
+			setUniformKernel(ProcessProgram, "kernel", KernelIdentity);
+		}
+
+		~PostProcess()
+		{
+			
 		}
 		
 		static void checkFramebufferCompleteness()
@@ -86,13 +99,17 @@ class PostProcess
 
 		void renderProcessed()
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		    glClearColor(1.0, 1.0, 1.0, 1.0);
-		    glClear(GL_COLOR_BUFFER_BIT);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, Framebuffer);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, IntermediateFramebuffer);
+			glBlitFramebuffer(0, 0, WindowWidth, WindowHeight, 0, 0, WindowWidth, WindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-		    glUseProgram(processProgram);
-			glBindVertexArray(quadVAO);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		    glClear(GL_COLOR_BUFFER_BIT);
 		    glDisable(GL_DEPTH_TEST);
+
+		    glUseProgram(ProcessProgram);
+			glBindVertexArray(QuadVAO);
 		    glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
 		    glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
@@ -104,51 +121,71 @@ class PostProcess
 
 			if(ImGui::RadioButton("Sharp", &e, 0))
 			{
-				setUniformKernel(processProgram, "kernel", kernelSharp);
+				setUniformKernel(ProcessProgram, "kernel", KernelSharp);
 				std::cout << "Set sharp" << std::endl;
 			}
 			ImGui::SameLine();
 			if(ImGui::RadioButton("Ridge", &e, 1))
 			{
-				setUniformKernel(processProgram, "kernel", kernelRidge);
+				setUniformKernel(ProcessProgram, "kernel", KernelRidge);
 				std::cout << "Set sharp" << std::endl;
 			}
 			ImGui::SameLine();
 
 			if(ImGui::RadioButton("Blur", &e, 2))
 			{
-				setUniformKernel(processProgram, "kernel", kernelBlur);
+				setUniformKernel(ProcessProgram, "kernel", KernelBlur);
 				std::cout << "Set blur" << std::endl;
 			}
 			ImGui::SameLine();
 
 			if(ImGui::RadioButton("Identity", &e, 3))
 			{
-				setUniformKernel(processProgram, "kernel", kernelIdentity);
+				setUniformKernel(ProcessProgram, "kernel", KernelIdentity);
 				std::cout << "Set identity" << std::endl;
 			}
 
 		}
 
+		inline void framebuffersResize(int width, int height)
+		{
+			glDeleteFramebuffers(1, &Framebuffer);
+			glDeleteFramebuffers(1, &IntermediateFramebuffer);
+			glDeleteRenderbuffers(1, &Renderbuffer);
+			glDeleteTextures(1, &FramebufferTexture);
+			glDeleteTextures(1, &IntermediateFramebufferTexture);
+
+			WindowWidth = width;
+			WindowHeight = height;
+
+			initFrameBuffer();	
+		}
+
 
 	private:
-		unsigned int quadVAO;
-		unsigned int quadVBO;
+		int WindowWidth;
+		int WindowHeight;
+
+		unsigned int QuadVAO;
+		unsigned int QuadVBO;
 
 		unsigned int Framebuffer;
 		unsigned int FramebufferTexture;
 		unsigned int Renderbuffer;
 
-		unsigned int processProgram;
+		unsigned int IntermediateFramebuffer;
+		unsigned int IntermediateFramebufferTexture;
+
+		unsigned int ProcessProgram;
 
 		void initTexturedQuad()
 		{
-			glGenVertexArrays(1, &quadVAO);
-			glBindVertexArray(quadVAO);
+			glGenVertexArrays(1, &QuadVAO);
+			glBindVertexArray(QuadVAO);
 			
-			glGenBuffers(1, &quadVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glGenBuffers(1, &QuadVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, QuadVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVertices), &QuadVertices, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
@@ -163,27 +200,46 @@ class PostProcess
 			glBindFramebuffer(GL_FRAMEBUFFER, Framebuffer);
 			
 			glGenTextures(1, &FramebufferTexture);
-			glBindTexture(GL_TEXTURE_2D, FramebufferTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-			//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, FramebufferTexture);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, WindowWidth, WindowHeight, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, FramebufferTexture, 0);
+
+			glGenRenderbuffers(1, &Renderbuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, Renderbuffer);  
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, WindowWidth, WindowHeight);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Renderbuffer);
+			
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			checkFramebufferCompleteness();
+
+
+			glGenFramebuffers(1, &IntermediateFramebuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, IntermediateFramebuffer);
+
+			glGenTextures(1, &IntermediateFramebufferTexture);
+			glBindTexture(GL_TEXTURE_2D, IntermediateFramebufferTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WindowWidth, WindowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, IntermediateFramebufferTexture, 0);
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FramebufferTexture, 0);
+			checkFramebufferCompleteness();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			glGenRenderbuffers(1, &Renderbuffer);
-			glBindRenderbuffer(GL_RENDERBUFFER, Renderbuffer);  
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, Renderbuffer);
 		}
 
 		void initProcessingProgram(const char* vertex, const char* fragment)
 		{
 			unsigned int vertexShader   = compileShader(vertex, GL_VERTEX_SHADER);
 			unsigned int fragmentShader = compileShader(fragment, GL_FRAGMENT_SHADER);
-		    processProgram = linkShader(2, vertexShader, fragmentShader);
+		    ProcessProgram = linkShader(2, vertexShader, fragmentShader);
 		}
 
 	
